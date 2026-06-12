@@ -78,6 +78,9 @@ body { font-family: Arial, sans-serif; background: #F7F7F7; color: #1A1A1A; min-
 .feedback.wrong { background: #F8D7DA; border-left: 4px solid #DC3545; }
 .feedback .fb-title { font-weight: bold; margin-bottom: 4px; }
 .btn-next { width: 100%; background: #000; color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: bold; cursor: pointer; display: none; }
+.btn-confirm-sel { width: 100%; background: #000; color: #fff; border: none; border-radius: 8px; padding: 13px; font-size: 14px; font-weight: bold; cursor: pointer; margin-bottom: 12px; display: none; }
+.btn-confirm-sel:disabled { background: #D4D4D4; cursor: not-allowed; }
+.option.pre-selected { border-color: #000; background: #F0F0F0; }
 .btn-back-home { background: transparent; border: 1.5px solid #D4D4D4; color: #6B6B6B; border-radius: 8px; padding: 10px 18px; font-size: 13px; cursor: pointer; margin-bottom: 16px; }
 .btn-back-home:hover { border-color: #000; color: #000; }
 
@@ -632,6 +635,7 @@ function renderQuestion() {
 
   const container = document.getElementById('options-container');
   container.innerHTML = '';
+  preSelectedIdx = null;
   document.getElementById('feedback').style.display = 'none';
   document.getElementById('btn-next').style.display = 'none';
 
@@ -646,9 +650,47 @@ function renderSeleccion(q, container) {
     const div = document.createElement('div');
     div.className = 'option';
     div.innerHTML = '<span class="option-letter">' + l + '</span><span>' + q.opciones[i] + '</span>';
-    div.onclick = () => selectAnswer(i);
+    div.onclick = () => preSelectAnswer(i);
     container.appendChild(div);
   });
+  // Botón confirmar — solo aparece cuando hay una opción pre-seleccionada
+  const btnConfirm = document.createElement('button');
+  btnConfirm.className = 'btn-confirm-sel';
+  btnConfirm.id = 'btn-confirm-sel';
+  btnConfirm.textContent = 'Confirmar respuesta';
+  btnConfirm.disabled = true;
+  btnConfirm.onclick = confirmSelAnswer;
+  container.appendChild(btnConfirm);
+}
+
+let preSelectedIdx = null;
+
+function preSelectAnswer(idx) {
+  // Solo resaltar — no bloquear ni evaluar todavía
+  preSelectedIdx = idx;
+  document.querySelectorAll('.option').forEach((o, i) => {
+    o.classList.remove('pre-selected');
+    if (i === idx) o.classList.add('pre-selected');
+  });
+  const btn = document.getElementById('btn-confirm-sel');
+  if (btn) { btn.disabled = false; btn.style.display = 'block'; }
+}
+
+function confirmSelAnswer() {
+  if (preSelectedIdx === null) return;
+  const q = getQ(currentModule, currentQ);
+  const idx = preSelectedIdx;
+  // Bloquear todas las opciones
+  document.querySelectorAll('.option').forEach(o => { o.classList.add('disabled'); o.onclick = null; o.classList.remove('pre-selected'); });
+  const isCorrect = idx === q.correcta;
+  document.querySelectorAll('.option')[idx].classList.add(isCorrect ? 'correct' : 'wrong');
+  // Ocultar botón confirmar
+  const btn = document.getElementById('btn-confirm-sel');
+  if (btn) btn.style.display = 'none';
+  userAnswers.push({ q: currentQ, answer: idx, correct: isCorrect });
+  if (isCorrect) score++;
+  showFeedback(isCorrect, q.explicacion);
+  preSelectedIdx = null;
 }
 
 function renderMulti(q, container) {
