@@ -4,7 +4,7 @@
  * Carga preguntas del array PREGUNTAS, gestiona el flujo, anti-trampa y resultados.
  */
 
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwopjXCAGD3-w60ZpjbvswvaO4TOKIypXoPx5J86ovGGojEMEK9cC3P2z7taA6hDrIt/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxj4Xgj7R0rIVigshM_USLaaa_KKtiFWOuKTsORFp1tH7RasJVDNXPtFN1B98Tuftqt/exec';
 
 class SomosQuiz {
   constructor(config) {
