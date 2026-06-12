@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Días 1-2 · Formación SAC · Somos Internet</title>
+<link rel="stylesheet" href="quiz-styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-left">
+    <a href="index.html" class="header-back">← Portal</a>
+    <div class="header-divider"></div>
+    <span class="header-quiz-name">Quiz Días 1 y 2</span>
+  </div>
+  <div class="header-right" id="header-info"></div>
+</header>
+
+<!-- BIENVENIDA -->
+<div id="screen-welcome" class="screen active">
+  <div class="welcome-wrap">
+    <p class="welcome-tag">Quiz · Días 1 y 2</p>
+    <h1 class="welcome-title">Identidad, Herramientas,<br>Facturación y Trámites</h1>
+    <p class="welcome-desc">5 preguntas de dificultad alta. Casos reales, no memorización. Tómate el tiempo que necesites — al terminar verás tu resultado y las explicaciones completas.</p>
+    <div class="info-chips">
+      <div class="chip"><div class="chip-label">Preguntas</div><div class="chip-value">5</div></div>
+      <div class="chip"><div class="chip-label">Dificultad</div><div class="chip-value">Alta</div></div>
+      <div class="chip"><div class="chip-label">Umbral</div><div class="chip-value">Sin mínimo</div></div>
+      <div class="chip"><div class="chip-label">Tiempo</div><div class="chip-value">Sin límite</div></div>
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="input-nombre">Nombre completo</label>
+      <input class="form-input" id="input-nombre" type="text" placeholder="Tu nombre completo" oninput="validateForm()">
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="input-email">Correo corporativo</label>
+      <input class="form-input" id="input-email" type="email" placeholder="tu.nombre@somosinternet.co" oninput="validateForm()">
+      <span class="form-hint error-msg" id="email-error">El correo debe ser @somosinternet.co</span>
+    </div>
+    <button class="btn-primary" id="btn-start" onclick="iniciarQuiz()" disabled>Comenzar Quiz →</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-wrap">
+    <div class="progress-header">
+      <span class="progress-text" id="prog-txt">Pregunta 1 de 5</span>
+      <span class="progress-score" id="prog-score">✓ 0 correctas</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    <span class="nivel-pill" id="nivel-pill">🟡 Medio</span>
+    <div class="question-card">
+      <div class="q-eyebrow" id="q-num">Pregunta 1</div>
+      <div class="q-text" id="q-text"></div>
+    </div>
+    <div class="options" id="options-container"></div>
+    <div class="feedback-box" id="feedback">
+      <div class="fb-title" id="fb-title"></div>
+      <div class="fb-body" id="fb-body"></div>
+    </div>
+    <button class="btn-next" id="btn-next" onclick="siguientePregunta()">Siguiente pregunta →</button>
+  </div>
+</div>
+
+<!-- GUARDANDO -->
+<div id="screen-sending" class="screen">
+  <div class="sending-wrap">
+    <div class="spinner"></div>
+    <p style="font-size:16px;font-weight:700;">Guardando resultados...</p>
+    <p style="color:#9E9E9E;margin-top:8px;font-size:13px;">Un momento</p>
+  </div>
+</div>
+
+<!-- RESULTADOS -->
+<div id="screen-results" class="screen">
+  <div class="results-wrap">
+    <div class="score-block">
+      <div class="score-circle" id="score-circle">
+        <div class="score-pct" id="res-pct">0%</div>
+        <div class="score-frac" id="res-frac">0/5</div>
+      </div>
+      <div class="score-info">
+        <div class="score-name" id="res-name"></div>
+        <div class="score-status neutral" id="res-status">Diagnóstico</div>
+        <div class="score-msg" id="res-msg"></div>
+      </div>
+    </div>
+
+    <div class="nivel-breakdown">
+      <div class="nb-cell"><div class="nb-val facil" id="nb-facil">—</div><div class="nb-label">🟢 Fácil</div></div>
+      <div class="nb-cell"><div class="nb-val medio" id="nb-medio">—</div><div class="nb-label">🟡 Medio</div></div>
+      <div class="nb-cell"><div class="nb-val dificil" id="nb-dificil">—</div><div class="nb-label">🔴 Difícil</div></div>
+    </div>
+
+    <div class="cheat-alert" id="cheat-alert">
+      <strong>⚠ Actividad registrada durante la evaluación</strong>
+      <span id="cheat-detail"></span>
+    </div>
+
+    <div class="sync-msg" id="sync-msg"></div>
+
+    <div class="review-section">
+      <div class="review-title">Revisión de respuestas</div>
+      <div class="review-list" id="review-list"></div>
+    </div>
+
+    <button class="btn-retry" onclick="reiniciar()">Volver a intentar</button>
+    <button class="btn-portal" onclick="window.location.href='index.html'">← Volver al Portal</button>
+  </div>
+</div>
+
+<script src="quiz-engine.js"></script>
+<script>
+
+// ── PREGUNTAS (5 de alta dificultad del banco aprobado) ─────────
+const PREGUNTAS_QUIZ12 = [
+  {
+    nivel: 'dificil',
+    texto: 'Durante una validación de identidad el cliente dice: "Dime cuál es el correo que tengo registrado para ver si es el correcto." ¿Qué debe responder el analista?',
+    opciones: [
+      'Decirle el correo completo — si el cliente lo está pidiendo para verificar, eso es parte del proceso de validación',
+      'Mostrarle solo la parte inicial con el resto oculto: andrea****@gmail.com — y pedirle que confirme si ese es el suyo',
+      'Decirle que no puede compartir ninguna parte del correo por política de protección de datos',
+      'Enviarle un mensaje de prueba al correo registrado para que él confirme si lo recibió',
+    ],
+    correcta: 1,
+    explicacion: 'El protocolo es mostrar solo parte del dato con el resto oculto: andrea****@gmail.com. Nunca se revela el dato completo. La opción A viola la política de protección de datos. La opción C es incorrecta porque sí se puede mostrar parcialmente como técnica de verificación.',
+  },
+  {
+    nivel: 'dificil',
+    texto: '¿Cuál de estas afirmaciones sobre los planes vigentes de Somos es completamente correcta?',
+    opciones: [
+      'El plan PRO 2.0 tiene soporte 24/7, velocidades hasta 1 Gbps e incluye el equipo Orb. El Essential tiene soporte 24/7 y hasta 2 TV Box gratis',
+      'El plan PRO 2.0 tiene soporte 24/7, velocidades hasta 2 Gbps e incluye el equipo Orb. El Essential tiene soporte 24/7 y hasta 2 routers',
+      'Ambos planes tienen el mismo soporte 24/7. El PRO 2.0 velocidades hasta 2 Gbps e incluye el equipo Orb y 1 TV Box gratis. El Essential hasta 2 routers',
+      'El plan PRO 2.0 tiene soporte 24/7, velocidades hasta 2 Gbps e incluye el equipo Orb. El Essential tiene soporte 24/7 e incluye la Orb',
+    ],
+    correcta: 1,
+    explicacion: 'El PRO 2.0 incluye soporte 24/7 VIP, hasta 2 Gbps, routers ilimitados y el equipo Orb. El Essential tiene soporte 24/7 estándar, hasta 900 Mbps y máximo 2 routers. El precio varía según el estrato del EDIFICIO, no del apartamento.',
+  },
+  {
+    nivel: 'dificil',
+    texto: 'Un cliente solicita una suspensión temporal por 60 días. Al revisar la cuenta observas que está en período de prueba y nunca ha recibido una factura. ¿Qué haces?',
+    opciones: [
+      'Realizar la suspensión porque cumple con el mínimo de 30 días',
+      'Realizar la suspensión porque la factura se congelará automáticamente',
+      'Informar que no aplica porque el servicio debe ser facturable y no estar en período de prueba',
+      'Informar que no aplica porque el servicio está en período de prueba',
+    ],
+    correcta: 2,
+    explicacion: 'La suspensión temporal solo aplica para servicios facturables — es decir, que ya hayan pagado mínimo una factura. No aplica para usuarios en período de prueba. La opción D es parcialmente correcta pero incompleta: la razón técnica es que debe ser un servicio facturable.',
+  },
+  {
+    nivel: 'dificil',
+    texto: '¿Cuál es la razón principal por la que puede aparecer un valor prorrateado al contratar un TV Box adicional?',
+    opciones: [
+      'El sistema cobra únicamente los días transcurridos hasta completar el ciclo de facturación vigente',
+      'El sistema busca alinear el nuevo servicio con la fecha de corte existente de la cuenta',
+      'El sistema aplica un ajuste temporal mientras se crea una nueva fecha de corte para el TV Box',
+      'El sistema cobra el primer mes por adelantado y luego regulariza el valor en la siguiente factura',
+    ],
+    correcta: 1,
+    explicacion: 'El prorrateo se genera cuando un servicio adicional se activa en una fecha diferente al inicio del ciclo de facturación. El sistema realiza un ajuste para que el nuevo servicio quede alineado con la fecha de corte existente de la cuenta. Por eso se cobra solo el valor proporcional antes de que empiece el cobro recurrente normal.',
+  },
+  {
+    nivel: 'dificil',
+    texto: 'CASO\n\nLaura solicita trasladar su servicio a una nueva dirección. Durante la validación encuentras que:\n• Existe cobertura en la nueva dirección.\n• El cliente está de acuerdo con el nuevo plan.\n• Ya se validó la dirección y el apartamento.\n• La suscripción presenta saldo pendiente y actualmente se encuentra en estado Suspendido.\n\n¿Qué debe hacer el analista?',
+    opciones: [
+      'Crear el traslado porque la nueva dirección tiene cobertura',
+      'Agendar el traslado y solicitar el pago posteriormente',
+      'Informar que el traslado no puede gestionarse porque únicamente se trasladan suscripciones en estado Activo',
+      'Informar al cliente que el traslado no puede gestionarse mientras la suscripción esté Suspendida. Para realizarlo, primero debe normalizar su estado de cuenta',
+    ],
+    correcta: 3,
+    explicacion: 'Uno de los requisitos obligatorios para gestionar un traslado es que la suscripción se encuentre en estado Activo. La opción C es parcialmente correcta pero incompleta — no le indica al cliente el camino a seguir. La respuesta completa es informarle que debe normalizar su cuenta (ponerse al día con el pago) para que quede Activa y así poder gestionar el traslado.',
+  },
+];
+
+// ── Instancia del motor ─────────────────────────────────────────
+const quiz = new SomosQuiz({
+  title: 'Quiz Días 1-2',
+  quizId: 'quiz_dias_1_2',
+  minApproval: null,
+  preguntas: PREGUNTAS_QUIZ12,
+  shuffleQuestions: true,
+  shuffleOptions: true,
+  trackCheating: true,
+});
+
+// ── Validación del formulario ───────────────────────────────────
+function validateForm() {
+  const nombre = document.getElementById('input-nombre').value.trim();
+  const email = document.getElementById('input-email').value.trim();
+  const emailOk = /^[a-zA-Z0-9._%+-]+@somosinternet\.co$/i.test(email);
+  const emailInput = document.getElementById('input-email');
+  const emailError = document.getElementById('email-error');
+
+  if (email.length > 5 && !emailOk) {
+    emailInput.classList.add('error');
+    emailError.style.display = 'block';
+  } else {
+    emailInput.classList.remove('error');
+    emailError.style.display = 'none';
+  }
+
+  document.getElementById('btn-start').disabled = !(nombre.length >= 3 && emailOk);
+}
+
+// ── Flujo principal ─────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function iniciarQuiz() {
+  const nombre = document.getElementById('input-nombre').value.trim();
+  const email = document.getElementById('input-email').value.trim();
+  quiz.start(nombre, email);
+  document.getElementById('header-info').textContent = nombre;
+  showScreen('screen-quiz');
+  renderPregunta();
+  quiz.markQuestionStart();
+}
+
+function renderPregunta() {
+  const q = quiz.preguntasActivas[quiz.current];
+  const total = quiz.preguntasActivas.length;
+  const pct = Math.round((quiz.current / total) * 100);
+
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-txt').textContent = `Pregunta ${quiz.current + 1} de ${total}`;
+  document.getElementById('prog-score').textContent = `✓ ${quiz.score} correctas`;
+
+  const pill = document.getElementById('nivel-pill');
+  pill.textContent = nivelLabel(q.nivel);
+  pill.className = 'nivel-pill ' + nivelBadgeClass(q.nivel);
+
+  document.getElementById('q-num').textContent = `Pregunta ${quiz.current + 1}`;
+  document.getElementById('q-text').textContent = q.texto;
+
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.opciones.forEach((op, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${op}</span>`;
+    div.onclick = () => seleccionar(i);
+    container.appendChild(div);
+  });
+
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+}
+
+function seleccionar(idx) {
+  const result = quiz.answer(idx);
+  const opts = document.querySelectorAll('.option');
+  opts.forEach(o => { o.classList.add('disabled'); o.onclick = null; });
+  opts[idx].classList.add(result.isCorrect ? 'correct' : 'wrong');
+  if (!result.isCorrect) opts[result.correcta].classList.add('correct');
+
+  const fb = document.getElementById('feedback');
+  const title = document.getElementById('fb-title');
+  fb.className = 'feedback-box ' + (result.isCorrect ? 'correct' : 'wrong');
+  title.className = 'fb-title ' + (result.isCorrect ? 'correct' : 'wrong');
+  title.textContent = result.isCorrect ? '✅ ¡Correcto!' : '❌ Incorrecto';
+  document.getElementById('fb-body').textContent = result.explicacion;
+  fb.style.display = 'block';
+
+  document.getElementById('prog-score').textContent = `✓ ${quiz.score} correctas`;
+
+  const btn = document.getElementById('btn-next');
+  btn.textContent = quiz.current < quiz.preguntasActivas.length - 1 ? 'Siguiente pregunta →' : 'Ver resultados →';
+  btn.style.display = 'block';
+}
+
+function siguientePregunta() {
+  quiz.next();
+  if (quiz.current < quiz.preguntasActivas.length) {
+    renderPregunta();
+    quiz.markQuestionStart();
+  } else {
+    terminar();
+  }
+}
+
+async function terminar() {
+  showScreen('screen-sending');
+  const saved = await quiz.save();
+  mostrarResultados(saved);
+}
+
+function mostrarResultados(saved) {
+  const r = quiz.getResults();
+
+  document.getElementById('res-pct').textContent = r.pct + '%';
+  document.getElementById('res-frac').textContent = r.score + '/' + r.total;
+  document.getElementById('res-name').textContent = quiz.userName;
+  document.getElementById('res-status').textContent = 'Evaluación diagnóstica';
+  document.getElementById('res-msg').textContent = resultMessage(r.pct, null);
+
+  // Nivel breakdown
+  ['facil', 'medio', 'dificil'].forEach(n => {
+    const el = document.getElementById('nb-' + n);
+    if (r.byNivel[n]) el.textContent = r.byNivel[n].correct + '/' + r.byNivel[n].total;
+    else el.textContent = '—';
+  });
+
+  // Anti-cheat warning
+  if (r.tabSwitches > 0 || r.focusLosses > 1) {
+    const alert = document.getElementById('cheat-alert');
+    alert.style.display = 'block';
+    document.getElementById('cheat-detail').textContent =
+      `Cambios de pestaña: ${r.tabSwitches} · Pérdidas de foco: ${r.focusLosses}. Esta información quedó registrada junto con tu resultado.`;
+  }
+
+  // Sync status
+  const syncEl = document.getElementById('sync-msg');
+  syncEl.style.display = 'block';
+  syncEl.className = 'sync-msg ' + (saved ? 'sync-ok' : 'sync-fail');
+  syncEl.textContent = saved
+    ? '✅ Resultado guardado correctamente.'
+    : '⚠ No se pudo guardar automáticamente. Informa tu puntaje al formador: ' + r.pct + '%';
+
+  // Review
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  quiz.userAnswers.forEach((a, i) => {
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (a.correcto ? 'ok' : 'fail');
+    const qShort = a.pregunta.split('\n')[0].substring(0, 90) + (a.pregunta.length > 90 ? '…' : '');
+    div.innerHTML = `
+      <div class="ri-q">${a.correcto ? '✅' : '❌'} P${i + 1}: ${qShort}</div>
+      ${!a.correcto ? `<div class="ri-answer">Tu respuesta: ${a.respuestaTxt}</div><div class="ri-answer">Respuesta correcta: ${a.correctaTxt}</div><div class="ri-exp">${a.explicacion}</div>` : ''}
+    `;
+    list.appendChild(div);
+  });
+
+  showScreen('screen-results');
+}
+
+function reiniciar() {
+  document.getElementById('input-nombre').value = '';
+  document.getElementById('input-email').value = '';
+  document.getElementById('btn-start').disabled = true;
+  showScreen('screen-welcome');
+}
+</script>
+</body>
+</html>

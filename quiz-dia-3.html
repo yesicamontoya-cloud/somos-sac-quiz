@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Día 3 · Formación SAC · Somos Internet</title>
+<link rel="stylesheet" href="quiz-styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-left">
+    <a href="index.html" class="header-back">← Portal</a>
+    <div class="header-divider"></div>
+    <span class="header-quiz-name">Quiz Día 3</span>
+  </div>
+  <div class="header-right" id="header-info"></div>
+</header>
+
+<!-- BIENVENIDA -->
+<div id="screen-welcome" class="screen active">
+  <div class="welcome-wrap">
+    <p class="welcome-tag">Quiz · Día 3</p>
+    <h1 class="welcome-title">Flujo Operativo SAC</h1>
+    <p class="welcome-desc">5 preguntas sobre Selene, tickets, escalamientos, retención y PQR. Casos operativos reales — evalúan criterio y toma de decisiones, no memorización.</p>
+    <div class="info-chips">
+      <div class="chip"><div class="chip-label">Preguntas</div><div class="chip-value">5</div></div>
+      <div class="chip"><div class="chip-label">Dificultad</div><div class="chip-value">Alta</div></div>
+      <div class="chip"><div class="chip-label">Umbral</div><div class="chip-value">Sin mínimo</div></div>
+      <div class="chip"><div class="chip-label">Tiempo</div><div class="chip-value">Sin límite</div></div>
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="input-nombre">Nombre completo</label>
+      <input class="form-input" id="input-nombre" type="text" placeholder="Tu nombre completo" oninput="validateForm()">
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="input-email">Correo corporativo</label>
+      <input class="form-input" id="input-email" type="email" placeholder="tu.nombre@somosinternet.co" oninput="validateForm()">
+      <span class="form-hint error-msg" id="email-error">El correo debe ser @somosinternet.co</span>
+    </div>
+    <button class="btn-primary" id="btn-start" onclick="iniciarQuiz()" disabled>Comenzar Quiz →</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-wrap">
+    <div class="progress-header">
+      <span class="progress-text" id="prog-txt">Pregunta 1 de 5</span>
+      <span class="progress-score" id="prog-score">✓ 0 correctas</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    <span class="nivel-pill" id="nivel-pill">🔴 Difícil</span>
+    <div class="question-card">
+      <div class="q-eyebrow" id="q-num">Pregunta 1</div>
+      <div class="q-text" id="q-text"></div>
+    </div>
+    <div class="options" id="options-container"></div>
+    <div class="feedback-box" id="feedback">
+      <div class="fb-title" id="fb-title"></div>
+      <div class="fb-body" id="fb-body"></div>
+    </div>
+    <button class="btn-next" id="btn-next" onclick="siguientePregunta()">Siguiente pregunta →</button>
+  </div>
+</div>
+
+<!-- GUARDANDO -->
+<div id="screen-sending" class="screen">
+  <div class="sending-wrap">
+    <div class="spinner"></div>
+    <p style="font-size:16px;font-weight:700;">Guardando resultados...</p>
+    <p style="color:#9E9E9E;margin-top:8px;font-size:13px;">Un momento</p>
+  </div>
+</div>
+
+<!-- RESULTADOS -->
+<div id="screen-results" class="screen">
+  <div class="results-wrap">
+    <div class="score-block">
+      <div class="score-circle" id="score-circle">
+        <div class="score-pct" id="res-pct">0%</div>
+        <div class="score-frac" id="res-frac">0/5</div>
+      </div>
+      <div class="score-info">
+        <div class="score-name" id="res-name"></div>
+        <div class="score-status neutral" id="res-status">Diagnóstico</div>
+        <div class="score-msg" id="res-msg"></div>
+      </div>
+    </div>
+
+    <div class="nivel-breakdown">
+      <div class="nb-cell"><div class="nb-val facil" id="nb-facil">—</div><div class="nb-label">🟢 Fácil</div></div>
+      <div class="nb-cell"><div class="nb-val medio" id="nb-medio">—</div><div class="nb-label">🟡 Medio</div></div>
+      <div class="nb-cell"><div class="nb-val dificil" id="nb-dificil">—</div><div class="nb-label">🔴 Difícil</div></div>
+    </div>
+
+    <div class="cheat-alert" id="cheat-alert">
+      <strong>⚠ Actividad registrada durante la evaluación</strong>
+      <span id="cheat-detail"></span>
+    </div>
+
+    <div class="sync-msg" id="sync-msg"></div>
+
+    <div class="review-section">
+      <div class="review-title">Revisión de respuestas</div>
+      <div class="review-list" id="review-list"></div>
+    </div>
+
+    <button class="btn-retry" onclick="reiniciar()">Volver a intentar</button>
+    <button class="btn-portal" onclick="window.location.href='index.html'">← Volver al Portal</button>
+  </div>
+</div>
+
+<script src="quiz-engine.js"></script>
+<script>
+
+// ── PREGUNTAS DÍA 3 (5 casos operativos de alta dificultad) ────
+const PREGUNTAS_QUIZ3 = [
+  {
+    nivel: 'dificil',
+    texto: 'CASO\n\nMaría solicita suspender temporalmente su servicio durante 30 días porque estará fuera del país. Al revisar el servicio encuentras que:\n• La suscripción está ACTIVA.\n• Ya ha pagado varias facturas.\n• Utilizó una suspensión temporal por 60 días hace 4 meses.\n• Desea que la suspensión empiece hoy mismo.\n\n¿Cuál es la acción correcta?',
+    opciones: [
+      'Crear la suspensión por 30 días porque cumple el tiempo mínimo y la cuenta está activa',
+      'Informar que la solicitud no procede porque ya utilizó este beneficio durante el año actual',
+      'Escalar a Back Office para la aprobación',
+      'Crear la suspensión y aclarar que iniciará en la próxima fecha de corte',
+    ],
+    correcta: 1,
+    explicacion: 'Aunque la cuenta cumple las demás condiciones (servicio activo y facturable), la solicitud no procede porque la suspensión temporal es un beneficio que solo puede utilizarse UNA VEZ por año. Adicionalmente, la suspensión siempre inicia en la próxima fecha de corte, no en la fecha de solicitud. Al haber usado una suspensión previamente en el mismo año, no es posible generar una nueva.',
+  },
+  {
+    nivel: 'dificil',
+    texto: 'CASO\n\nRicardo Vargas escribe por WhatsApp. Dice que compró el apartamento 804 hace dos meses y el servicio de Somos sigue activo a nombre del anterior propietario, Felipe Torres. Ricardo quiere que quede a su nombre pero Felipe ya no vive allí y no tiene contacto con él.\n\n¿Cuál es la respuesta correcta del analista?',
+    opciones: [
+      'Actualizar el nombre directamente en Artemis con los datos de Ricardo ya que hay un cambio de propiedad',
+      'Cancelar el servicio de Felipe Torres e iniciar una nueva instalación a nombre de Ricardo',
+      'Intentar contactar a Felipe Torres con los datos registrados en el sistema para solicitar su autorización del cambio de titular — sin esa autorización el trámite no puede completarse',
+      'Pedirle a Ricardo que presente la escritura de compraventa como sustituto de la autorización del titular actual',
+    ],
+    correcta: 2,
+    explicacion: 'El cambio de titularidad requiere la participación y autorización del titular actual. El primer paso es intentar contactar a Felipe Torres con los datos que Somos tiene registrados. Sin esa autorización el proceso no puede completarse — ni con escrituras ni con ningún otro documento sustituto. No se modifica nada en Artemis hasta completar el proceso correctamente.',
+  },
+  {
+    nivel: 'dificil',
+    texto: 'Un cliente lleva 8 minutos insistiendo en que le devuelvan el dinero de los últimos 3 meses porque "el internet siempre falla". Al revisar en ISP/Grafana no hay ningún registro de falla en su nodo y el servicio ha tenido disponibilidad normal. El cliente dice que si no le devuelven el dinero va a poner una queja formal.\n\n¿Cuál es la secuencia correcta de acciones?',
+    opciones: [
+      'Ofrecerle un mes gratis como gesto de buena voluntad para que no ponga la queja',
+      'Transferirlo a Retención porque quiere cancelar el servicio',
+      'Validar con el cliente la falla específica, hacer diagnóstico técnico correcto, y si persiste la insatisfacción, orientarlo sobre el proceso de PQR explicando el tiempo de respuesta de 15 días hábiles',
+      'Informarle que los sistemas no registran ninguna falla y que la queja no procederá',
+    ],
+    correcta: 2,
+    explicacion: 'La acción correcta es primero validar y hacer un diagnóstico técnico real (quizás hay una falla intermitente no registrada). Si el cliente sigue insatisfecho, se le orienta sobre el proceso de PQR formal — que tiene 15 días hábiles de respuesta y genera un CUN. No se ofrece un mes gratis sin verificar, no se transfiere a Retención si el cliente no menciona querer cancelar, y nunca se invalida la percepción del cliente con datos del sistema sin antes investigar.',
+  },
+  {
+    nivel: 'dificil',
+    texto: 'CASO\n\nSon las 11:30 PM. Recibes 4 chats seguidos de clientes del mismo edificio en Laureles reportando que no tienen internet desde hace 2 horas. Al revisar en ISP/Grafana ves una afectación en el nodo de esa zona.\n\n¿Qué haces con cada uno de los 4 clientes?',
+    opciones: [
+      'Abrir una visita técnica para cada uno y asignarla al turno de la mañana',
+      'Decirles que el problema es interno de su apartamento y pedirles que reinicien el router',
+      'Comunicarles que hay una afectación identificada en su zona que ya está siendo atendida por el equipo técnico, sin dar tiempos de resolución, y NO abrir visita técnica para ninguno',
+      'Escalar cada caso individualmente al área técnica con un ticket diferente por cliente',
+    ],
+    correcta: 2,
+    explicacion: 'Cuando hay una falla masiva identificada en ISP/Grafana, el protocolo es: 1) Comunicar al cliente que hay una afectación en su zona siendo atendida. 2) NO dar tiempos de resolución que no se pueden garantizar. 3) NO abrir visitas técnicas individuales — eso satura la agenda y no resuelve el problema raíz. 4) Escalar al área técnica de forma consolidada, no caso por caso.',
+  },
+  {
+    nivel: 'dificil',
+    texto: 'CASO\n\nCamila López llama molesta. Dice: "Me cobraron $163.000 este mes y yo pago $75.000 del plan Essential. Eso está mal y quiero que me lo expliquen ahora." \n\nAl revisar en Artemis encuentras: plan Essential activo ($75.000), un TV Box adicional activado hace 18 días ($10.000/mes) y el ciclo de facturación es de 30 días.\n\n¿Cómo explicas el cobro?',
+    opciones: [
+      'Decirle que hay un error de facturación y escalar al área de Cobranzas para que lo corrijan',
+      'Explicarle que el cobro incluye: $75.000 del plan mensual + $10.000 del TV Box recurrente + el prorrateo de los 18 días del TV Box desde su activación ($6.000 aprox) = ~$91.000, no $163.000 — por lo que debe revisarse si hay otro cargo',
+      'Confirmarle que el cobro es correcto porque el TV Box tiene un costo de instalación adicional',
+      'Decirle que el sistema automáticamente cobró más por un ajuste de precios del plan Essential',
+    ],
+    correcta: 1,
+    explicacion: 'El análisis correcto: $75.000 plan + $10.000 TV Box recurrente + prorrateo de 18 días de TV Box ($10.000 ÷ 30 × 18 = $6.000) = ~$91.000. Si la factura dice $163.000, el cálculo no cuadra con los servicios activos — hay algo más que revisar antes de confirmar o negar el cobro. La respuesta B es la única que hace el análisis real en lugar de asumir que está bien o mal.',
+  },
+];
+
+// ── Instancia del motor ─────────────────────────────────────────
+const quiz = new SomosQuiz({
+  title: 'Quiz Día 3',
+  quizId: 'quiz_dia_3',
+  minApproval: null,
+  preguntas: PREGUNTAS_QUIZ3,
+  shuffleQuestions: true,
+  shuffleOptions: false, // Opciones de casos complejos no se mezclan
+  trackCheating: true,
+});
+
+// ── Validación y flujo (idéntico a quiz-dias-1-2) ───────────────
+function validateForm() {
+  const nombre = document.getElementById('input-nombre').value.trim();
+  const email = document.getElementById('input-email').value.trim();
+  const emailOk = /^[a-zA-Z0-9._%+-]+@somosinternet\.co$/i.test(email);
+  const emailInput = document.getElementById('input-email');
+  const emailError = document.getElementById('email-error');
+  if (email.length > 5 && !emailOk) { emailInput.classList.add('error'); emailError.style.display = 'block'; }
+  else { emailInput.classList.remove('error'); emailError.style.display = 'none'; }
+  document.getElementById('btn-start').disabled = !(nombre.length >= 3 && emailOk);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function iniciarQuiz() {
+  const nombre = document.getElementById('input-nombre').value.trim();
+  const email = document.getElementById('input-email').value.trim();
+  quiz.start(nombre, email);
+  document.getElementById('header-info').textContent = nombre;
+  showScreen('screen-quiz');
+  renderPregunta();
+  quiz.markQuestionStart();
+}
+
+function renderPregunta() {
+  const q = quiz.preguntasActivas[quiz.current];
+  const total = quiz.preguntasActivas.length;
+  const pct = Math.round((quiz.current / total) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-txt').textContent = `Pregunta ${quiz.current + 1} de ${total}`;
+  document.getElementById('prog-score').textContent = `✓ ${quiz.score} correctas`;
+  const pill = document.getElementById('nivel-pill');
+  pill.textContent = nivelLabel(q.nivel);
+  pill.className = 'nivel-pill ' + nivelBadgeClass(q.nivel);
+  document.getElementById('q-num').textContent = `Pregunta ${quiz.current + 1}`;
+  document.getElementById('q-text').textContent = q.texto;
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.opciones.forEach((op, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${op}</span>`;
+    div.onclick = () => seleccionar(i);
+    container.appendChild(div);
+  });
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+}
+
+function seleccionar(idx) {
+  const result = quiz.answer(idx);
+  const opts = document.querySelectorAll('.option');
+  opts.forEach(o => { o.classList.add('disabled'); o.onclick = null; });
+  opts[idx].classList.add(result.isCorrect ? 'correct' : 'wrong');
+  if (!result.isCorrect) opts[result.correcta].classList.add('correct');
+  const fb = document.getElementById('feedback');
+  const title = document.getElementById('fb-title');
+  fb.className = 'feedback-box ' + (result.isCorrect ? 'correct' : 'wrong');
+  title.className = 'fb-title ' + (result.isCorrect ? 'correct' : 'wrong');
+  title.textContent = result.isCorrect ? '✅ ¡Correcto!' : '❌ Incorrecto';
+  document.getElementById('fb-body').textContent = result.explicacion;
+  fb.style.display = 'block';
+  document.getElementById('prog-score').textContent = `✓ ${quiz.score} correctas`;
+  const btn = document.getElementById('btn-next');
+  btn.textContent = quiz.current < quiz.preguntasActivas.length - 1 ? 'Siguiente pregunta →' : 'Ver resultados →';
+  btn.style.display = 'block';
+}
+
+function siguientePregunta() {
+  quiz.next();
+  if (quiz.current < quiz.preguntasActivas.length) { renderPregunta(); quiz.markQuestionStart(); }
+  else terminar();
+}
+
+async function terminar() {
+  showScreen('screen-sending');
+  const saved = await quiz.save();
+  mostrarResultados(saved);
+}
+
+function mostrarResultados(saved) {
+  const r = quiz.getResults();
+  document.getElementById('res-pct').textContent = r.pct + '%';
+  document.getElementById('res-frac').textContent = r.score + '/' + r.total;
+  document.getElementById('res-name').textContent = quiz.userName;
+  document.getElementById('res-status').textContent = 'Evaluación diagnóstica';
+  document.getElementById('res-msg').textContent = resultMessage(r.pct, null);
+  ['facil', 'medio', 'dificil'].forEach(n => {
+    const el = document.getElementById('nb-' + n);
+    el.textContent = r.byNivel[n] ? r.byNivel[n].correct + '/' + r.byNivel[n].total : '—';
+  });
+  if (r.tabSwitches > 0 || r.focusLosses > 1) {
+    const al = document.getElementById('cheat-alert');
+    al.style.display = 'block';
+    document.getElementById('cheat-detail').textContent = `Cambios de pestaña: ${r.tabSwitches} · Pérdidas de foco: ${r.focusLosses}. Esta información quedó registrada.`;
+  }
+  const syncEl = document.getElementById('sync-msg');
+  syncEl.style.display = 'block';
+  syncEl.className = 'sync-msg ' + (saved ? 'sync-ok' : 'sync-fail');
+  syncEl.textContent = saved ? '✅ Resultado guardado correctamente.' : '⚠ No se pudo guardar automáticamente. Informa tu puntaje al formador: ' + r.pct + '%';
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  quiz.userAnswers.forEach((a, i) => {
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (a.correcto ? 'ok' : 'fail');
+    const qShort = a.pregunta.split('\n')[0].substring(0, 90) + (a.pregunta.length > 90 ? '…' : '');
+    div.innerHTML = `<div class="ri-q">${a.correcto ? '✅' : '❌'} P${i + 1}: ${qShort}</div>
+      ${!a.correcto ? `<div class="ri-answer">Tu respuesta: ${a.respuestaTxt}</div><div class="ri-answer">Respuesta correcta: ${a.correctaTxt}</div><div class="ri-exp">${a.explicacion}</div>` : ''}`;
+    list.appendChild(div);
+  });
+  showScreen('screen-results');
+}
+
+function reiniciar() {
+  document.getElementById('input-nombre').value = '';
+  document.getElementById('input-email').value = '';
+  document.getElementById('btn-start').disabled = true;
+  showScreen('screen-welcome');
+}
+</script>
+</body>
+</html>

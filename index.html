@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal de Evaluaciones · Formación Inicial SAC · Somos Internet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0A0A0A;
+    --white: #FFFFFF;
+    --gray-100: #F5F5F5;
+    --gray-200: #E8E8E8;
+    --gray-400: #9E9E9E;
+    --gray-600: #616161;
+    --gray-800: #212121;
+    --green: #1A7A4A;
+    --green-light: #E6F4EC;
+    --red: #C0392B;
+    --red-light: #FDECEA;
+    --yellow: #7A6000;
+    --yellow-light: #FFF8E1;
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: var(--gray-100);
+    color: var(--black);
+    min-height: 100vh;
+  }
+
+  /* ─── HEADER ─── */
+  .site-header {
+    background: var(--black);
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .header-title {
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+
+  .header-tag {
+    color: var(--gray-400);
+    font-size: 11px;
+    font-weight: 400;
+    margin-top: 1px;
+  }
+
+  .header-badge {
+    background: var(--gray-800);
+    color: var(--gray-400);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    background: var(--black);
+    padding: 56px 32px 48px;
+    text-align: center;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    color: var(--gray-400);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .hero-title {
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+  }
+
+  .hero-title span {
+    color: var(--gray-400);
+    font-weight: 300;
+  }
+
+  .hero-sub {
+    color: var(--gray-400);
+    font-size: 15px;
+    font-weight: 400;
+    max-width: 480px;
+    margin: 0 auto 36px;
+    line-height: 1.6;
+  }
+
+  .hero-rule {
+    width: 40px;
+    height: 2px;
+    background: var(--white);
+    margin: 0 auto;
+    opacity: 0.2;
+  }
+
+  /* ─── MAIN CONTENT ─── */
+  .content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  .section-label {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin-bottom: 20px;
+  }
+
+  /* ─── EVAL CARDS ─── */
+  .eval-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .eval-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 20px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+  }
+
+  .eval-card:hover {
+    border-color: var(--black);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  .eval-card.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .eval-card-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .eval-number {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--gray-400);
+    min-width: 24px;
+    padding-top: 3px;
+  }
+
+  .eval-info {}
+
+  .eval-day {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    color: var(--gray-400);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .eval-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+
+  .eval-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .pill {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--gray-200);
+    color: var(--gray-600);
+    background: var(--gray-100);
+  }
+
+  .pill.cert {
+    border-color: var(--black);
+    color: var(--black);
+    background: var(--white);
+  }
+
+  .eval-action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .btn-go {
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+
+  .btn-go:hover {
+    background: var(--gray-800);
+  }
+
+  .lock-label {
+    font-size: 11px;
+    color: var(--gray-400);
+    text-align: right;
+  }
+
+  /* ─── INFO STRIP ─── */
+  .info-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--gray-200);
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 48px;
+  }
+
+  .info-cell {
+    background: var(--white);
+    padding: 20px 24px;
+  }
+
+  .info-cell-label {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin-bottom: 6px;
+  }
+
+  .info-cell-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--black);
+  }
+
+  /* ─── COMING SOON ─── */
+  .coming-soon-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .coming-card {
+    background: var(--white);
+    border: 1px dashed var(--gray-200);
+    border-radius: 12px;
+    padding: 24px;
+    opacity: 0.6;
+  }
+
+  .coming-label {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin-bottom: 8px;
+  }
+
+  .coming-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gray-600);
+  }
+
+  .coming-tag {
+    font-size: 11px;
+    color: var(--gray-400);
+    margin-top: 4px;
+  }
+
+  /* ─── FOOTER ─── */
+  .site-footer {
+    background: var(--black);
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-text {
+    font-size: 12px;
+    color: var(--gray-600);
+  }
+
+  .footer-version {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    color: var(--gray-600);
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 600px) {
+    .eval-card { grid-template-columns: 1fr; }
+    .eval-action { align-items: flex-start; }
+    .info-strip { grid-template-columns: 1fr; }
+    .coming-soon-grid { grid-template-columns: 1fr; }
+    .hero { padding: 40px 20px 36px; }
+    .content { padding: 32px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo-area">
+    <svg class="logo-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="120" height="120" fill="black"/>
+      <path d="M20 72 C20 62 28 55 38 55 C43 55 47 57 50 61 C53 57 57 55 62 55 C67 55 71 57 74 61 C77 57 81 55 86 55 C96 55 104 62 104 72 C104 82 96 89 86 89 C81 89 77 87 74 83 C71 87 67 89 62 89 C57 89 53 87 50 83 C47 87 43 89 38 89 C28 89 20 82 20 72 Z" fill="white"/>
+    </svg>
+    <div>
+      <div class="header-title">Formación Inicial SAC</div>
+      <div class="header-tag">Somos Internet · Portal de Evaluaciones</div>
+    </div>
+  </div>
+  <div class="header-badge">2026</div>
+</header>
+
+<section class="hero">
+  <p class="hero-eyebrow">Centro de Evaluación</p>
+  <h1 class="hero-title">Tus evaluaciones<br><span>en un solo lugar</span></h1>
+  <p class="hero-sub">Completa cada evaluación al final del día correspondiente. Los resultados quedan registrados automáticamente.</p>
+  <div class="hero-rule"></div>
+</section>
+
+<main class="content">
+
+  <div class="info-strip">
+    <div class="info-cell">
+      <div class="info-cell-label">Correo corporativo</div>
+      <div class="info-cell-value">@somosinternet.co</div>
+    </div>
+    <div class="info-cell">
+      <div class="info-cell-label">Aprobación certificaciones</div>
+      <div class="info-cell-value">85% o más</div>
+    </div>
+    <div class="info-cell">
+      <div class="info-cell-label">Resultados</div>
+      <div class="info-cell-value">Se guardan solos</div>
+    </div>
+  </div>
+
+  <p class="section-label">Fase 1 · SAC</p>
+
+  <div class="eval-grid">
+
+    <div class="eval-card" onclick="window.location.href='quiz-dias-1-2.html'">
+      <div class="eval-card-left">
+        <div class="eval-number">01</div>
+        <div class="eval-info">
+          <div class="eval-day">Días 1 y 2</div>
+          <div class="eval-name">Quiz · Identidad, Herramientas, Facturación y Trámites</div>
+          <div class="eval-meta">
+            <span class="pill">5 preguntas</span>
+            <span class="pill">Dificultad alta</span>
+            <span class="pill">Diagnóstico · Sin umbral</span>
+          </div>
+        </div>
+      </div>
+      <div class="eval-action">
+        <button class="btn-go">Comenzar →</button>
+      </div>
+    </div>
+
+    <div class="eval-card" onclick="window.location.href='quiz-dia-3.html'">
+      <div class="eval-card-left">
+        <div class="eval-number">02</div>
+        <div class="eval-info">
+          <div class="eval-day">Día 3</div>
+          <div class="eval-name">Quiz · Flujo Operativo SAC</div>
+          <div class="eval-meta">
+            <span class="pill">5 preguntas</span>
+            <span class="pill">Casos reales</span>
+            <span class="pill">Diagnóstico · Sin umbral</span>
+          </div>
+        </div>
+      </div>
+      <div class="eval-action">
+        <button class="btn-go">Comenzar →</button>
+      </div>
+    </div>
+
+    <div class="eval-card" onclick="window.location.href='certificacion-sac.html'">
+      <div class="eval-card-left">
+        <div class="eval-number">03</div>
+        <div class="eval-info">
+          <div class="eval-day">Día 4 · Certificación</div>
+          <div class="eval-name">Certificación SAC · Evaluación Final</div>
+          <div class="eval-meta">
+            <span class="pill cert">25 preguntas</span>
+            <span class="pill cert">Meta: 85%</span>
+            <span class="pill cert">Cobertura completa</span>
+          </div>
+        </div>
+      </div>
+      <div class="eval-action">
+        <button class="btn-go">Comenzar →</button>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="section-label" style="margin-bottom:16px;">Fase 2 · Próximamente</p>
+
+  <div class="coming-soon-grid">
+    <div class="coming-card">
+      <div class="coming-label">En desarrollo</div>
+      <div class="coming-name">Certificación Soporte N1</div>
+      <div class="coming-tag">Diagnóstico técnico · Red · Equipos · Escalamientos</div>
+    </div>
+    <div class="coming-card">
+      <div class="coming-label">En desarrollo</div>
+      <div class="coming-name">Certificación TV</div>
+      <div class="coming-tag">TV Box · IPTV · Control remoto · Diagnóstico</div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <span class="footer-text">Somos Internet · Formación Inicial SAC</span>
+  <span class="footer-version">v1.0 · 2026</span>
+</footer>
+
+</body>
+</html>

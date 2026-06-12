@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certificación SAC · Formación Inicial · Somos Internet</title>
+<link rel="stylesheet" href="quiz-styles.css">
+<style>
+  .cert-banner {
+    background: var(--black);
+    color: var(--white);
+    text-align: center;
+    padding: 10px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .cert-banner span { color: var(--gray-400); }
+  .approval-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+  }
+  .approval-bar-wrap { flex: 1; height: 6px; background: var(--gray-200); border-radius: 3px; overflow: hidden; }
+  .approval-bar { height: 100%; background: var(--black); border-radius: 3px; transition: width 0.3s; }
+  .approval-bar.passing { background: var(--green); }
+  .approval-pct { font-family: 'Roboto Mono', monospace; font-size: 12px; font-weight: 700; min-width: 36px; text-align: right; }
+  .approval-target { font-size: 11px; color: var(--gray-400); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="cert-banner">CERTIFICACIÓN OFICIAL · <span>Meta mínima: 85% · Los resultados quedan registrados</span></div>
+
+<header class="site-header">
+  <div class="header-left">
+    <a href="index.html" class="header-back">← Portal</a>
+    <div class="header-divider"></div>
+    <span class="header-quiz-name">Certificación SAC · Día 4</span>
+  </div>
+  <div class="header-right" id="header-info"></div>
+</header>
+
+<!-- BIENVENIDA -->
+<div id="screen-welcome" class="screen active">
+  <div class="welcome-wrap">
+    <p class="welcome-tag">Certificación Oficial</p>
+    <h1 class="welcome-title">Evaluación Final SAC</h1>
+    <p class="welcome-desc">25 preguntas que cubren todos los contenidos del programa SAC: identidad, herramientas, facturación, trámites, procedimientos, retención, PQR y atención. Necesitas <strong>85% o más</strong> para aprobar y avanzar.</p>
+    <div class="info-chips">
+      <div class="chip"><div class="chip-label">Preguntas</div><div class="chip-value">25</div></div>
+      <div class="chip"><div class="chip-label">Aprobación</div><div class="chip-value">85% · 22/25</div></div>
+      <div class="chip"><div class="chip-label">Intentos</div><div class="chip-value">Ilimitados</div></div>
+      <div class="chip"><div class="chip-label">Registro</div><div class="chip-value">Automático</div></div>
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="input-nombre">Nombre completo</label>
+      <input class="form-input" id="input-nombre" type="text" placeholder="Tu nombre completo" oninput="validateForm()">
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="input-email">Correo corporativo</label>
+      <input class="form-input" id="input-email" type="email" placeholder="tu.nombre@somosinternet.co" oninput="validateForm()">
+      <span class="form-hint error-msg" id="email-error">El correo debe ser @somosinternet.co</span>
+    </div>
+    <button class="btn-primary" id="btn-start" onclick="iniciarQuiz()" disabled>Iniciar Certificación →</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-wrap">
+    <div class="progress-header">
+      <span class="progress-text" id="prog-txt">Pregunta 1 de 25</span>
+      <span class="progress-score" id="prog-score">✓ 0 correctas</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="approval-indicator">
+      <span class="approval-target">Meta 85%</span>
+      <div class="approval-bar-wrap"><div class="approval-bar" id="approval-bar" style="width:0%"></div></div>
+      <span class="approval-pct" id="approval-pct">0%</span>
+    </div>
+    <span class="nivel-pill" id="nivel-pill">🟡 Medio</span>
+    <div class="question-card">
+      <div class="q-eyebrow" id="q-num">Pregunta 1</div>
+      <div class="q-text" id="q-text"></div>
+    </div>
+    <div class="options" id="options-container"></div>
+    <div class="feedback-box" id="feedback">
+      <div class="fb-title" id="fb-title"></div>
+      <div class="fb-body" id="fb-body"></div>
+    </div>
+    <button class="btn-next" id="btn-next" onclick="siguientePregunta()">Siguiente pregunta →</button>
+  </div>
+</div>
+
+<!-- GUARDANDO -->
+<div id="screen-sending" class="screen">
+  <div class="sending-wrap">
+    <div class="spinner"></div>
+    <p style="font-size:16px;font-weight:700;">Guardando certificación...</p>
+    <p style="color:#9E9E9E;margin-top:8px;font-size:13px;">Un momento</p>
+  </div>
+</div>
+
+<!-- RESULTADOS -->
+<div id="screen-results" class="screen">
+  <div class="results-wrap">
+    <div class="score-block">
+      <div class="score-circle" id="score-circle">
+        <div class="score-pct" id="res-pct">0%</div>
+        <div class="score-frac" id="res-frac">0/25</div>
+      </div>
+      <div class="score-info">
+        <div class="score-name" id="res-name"></div>
+        <div class="score-status" id="res-status"></div>
+        <div class="score-msg" id="res-msg"></div>
+      </div>
+    </div>
+
+    <div class="nivel-breakdown">
+      <div class="nb-cell"><div class="nb-val facil" id="nb-facil">—</div><div class="nb-label">🟢 Fácil</div></div>
+      <div class="nb-cell"><div class="nb-val medio" id="nb-medio">—</div><div class="nb-label">🟡 Medio</div></div>
+      <div class="nb-cell"><div class="nb-val dificil" id="nb-dificil">—</div><div class="nb-label">🔴 Difícil</div></div>
+    </div>
+
+    <div class="cheat-alert" id="cheat-alert">
+      <strong>⚠ Actividad registrada durante la evaluación</strong>
+      <span id="cheat-detail"></span>
+    </div>
+
+    <div class="sync-msg" id="sync-msg"></div>
+
+    <div class="review-section">
+      <div class="review-title">Revisión de respuestas</div>
+      <div class="review-list" id="review-list"></div>
+    </div>
+
+    <button class="btn-retry" onclick="reiniciar()">Volver a intentar</button>
+    <button class="btn-portal" onclick="window.location.href='index.html'">← Volver al Portal</button>
+  </div>
+</div>
+
+<script src="quiz-engine.js"></script>
+<script>
+
+// ── 25 PREGUNTAS CERTIFICACIÓN SAC ──────────────────────────────
+// Cobertura: identidad (3) · herramientas (2) · planes (2) ·
+// facturación (3) · prorrateo (2) · estados del servicio (2) ·
+// trámites-traslado (2) · suspensión temporal (2) ·
+// cambio titular (1) · tickets-escalamientos (2) · retención (2) ·
+// PQR (2) · protección datos (1)
+const PREGUNTAS_CERT = [
+  // ── IDENTIDAD Y MARCA ────────────────────────────────────────
+  {
+    nivel: 'facil',
+    texto: '¿Cuáles son los tres diferenciadores principales de Somos frente a una Telco tradicional como Claro o Tigo?',
+    opciones: [
+      'Precios más bajos en todos los planes, cobertura nacional y servicio 24/7',
+      'Sin cláusula de permanencia, velocidades simétricas reales y 30 días de prueba gratuita',
+      'Fibra óptica propia, técnicos tercerizados y facturación digital',
+      'Atención 24/7, cobertura en todas las ciudades y sin límite de datos',
+    ],
+    correcta: 1,
+    explicacion: 'Los diferenciadores clave de Somos son: sin cláusula de permanencia (el cliente puede irse cuando quiera sin penalización), velocidades simétricas reales (misma velocidad de subida y bajada) y 30 días de prueba gratuita. Los técnicos son propios, no tercerizados.',
+  },
+  {
+    nivel: 'facil',
+    texto: '¿Qué tipo de cliente es considerado B2B VIP en Somos?',
+    opciones: [
+      'Cualquier empresa que pague con NIT, sin importar el monto',
+      'El cliente que tiene exactamente 10 servicios activos simultáneos',
+      'Un cliente que cumple uno o más criterios: múltiples servicios, NIT madre/hijos, facturación significativa, múltiples sedes o cuenta estratégica con KAM asignado',
+      'Solo los clientes de grandes corporaciones con más de 500 empleados',
+    ],
+    correcta: 2,
+    explicacion: 'B2B VIP no tiene un criterio único — puede cumplir uno o varios: múltiples servicios activos, estructura NIT madre/hijos, facturación mensual significativa, múltiples sedes, cuenta estratégica o con KAM asignado. No es un número fijo de servicios ni un tamaño mínimo de empresa.',
+  },
+  {
+    nivel: 'medio',
+    texto: 'El protocolo de validación de identidad establece que hay 3 datos obligatorios. ¿Cuáles son y en qué momento se documenta que la validación fue exitosa?',
+    opciones: [
+      'Nombre, documento y correo. Se documenta después de gestionar el caso.',
+      'Nombre completo del titular, número de documento registrado en Artemis y teléfono de contacto. Se documenta ANTES de gestionar cualquier acción.',
+      'Nombre, documento y dirección del servicio. Se documenta solo si el cliente lo solicita.',
+      'Nombre, correo y número de cuenta. Se documenta al cerrar la interacción.',
+    ],
+    correcta: 1,
+    explicacion: 'Los 3 datos obligatorios son: nombre completo del titular, documento de identidad registrado en Artemis y teléfono de contacto. La documentación en Artemis de que la validación fue exitosa se hace ANTES de gestionar — no al final. Si no se documenta, el proceso no es válido.',
+  },
+  // ── HERRAMIENTAS ─────────────────────────────────────────────
+  {
+    nivel: 'facil',
+    texto: '¿Cuál es la función específica de cada herramienta? Artemis · Selene · Wompi · Voxiplant',
+    opciones: [
+      'Artemis = pagos · Selene = CRM · Wompi = chats · Voxiplant = monitoreo red',
+      'Artemis = CRM y facturación · Selene = chats WhatsApp · Wompi = pasarela de pago · Voxiplant = plataforma de llamadas',
+      'Artemis = CRM y facturación · Selene = llamadas · Wompi = tickets · Voxiplant = chats',
+      'Artemis = monitoreo · Selene = CRM · Wompi = facturación · Voxiplant = pagos',
+    ],
+    correcta: 1,
+    explicacion: 'Artemis es el CRM y sistema de facturación (perfiles, estados, trámites). Selene centraliza los chats de WhatsApp. Wompi es la pasarela de pago principal para verificar y localizar pagos. Voxiplant es la plataforma de llamadas.',
+  },
+  {
+    nivel: 'medio',
+    texto: 'Un cliente dice que pagó hace 3 días y no puede navegar. Al buscar en Wompi no aparece ningún pago reciente con su documento. ¿Cuál es el proceso correcto?',
+    opciones: [
+      'Reconectar el servicio porque el cliente dice que pagó y la buena fe es suficiente',
+      'Decirle que el pago no existe y que debe volver a pagar para reconectar',
+      'Buscar también en PayU (pasarela legacy), y si tampoco aparece, crear un ticket de verificación de pago con todos los datos del cliente e informarle el tiempo de respuesta del Back Office',
+      'Pedirle el comprobante de pago y reconectar inmediatamente si lo envía',
+    ],
+    correcta: 2,
+    explicacion: 'El proceso es: 1) Buscar en Wompi (pasarela actual). 2) Si no aparece, buscar en PayU (pasarela legacy para pagos anteriores). 3) Si tampoco aparece, crear ticket de verificación de pago — nunca reconectar sin verificación en el sistema, pero tampoco pedirle que vuelva a pagar sin confirmar primero.',
+  },
+  // ── PLANES ──────────────────────────────────────────────────
+  {
+    nivel: 'facil',
+    texto: 'Un cliente vive en un edificio estrato 5 y quiere el plan PRO 2.0. ¿Cuánto paga y qué incluye?',
+    opciones: [
+      '$100.000/mes · hasta 2 Gbps · routers ilimitados · equipo Orb · soporte VIP 24/7',
+      '$120.000/mes · hasta 2 Gbps · routers ilimitados · equipo Orb · soporte VIP 24/7',
+      '$120.000/mes · hasta 1 Gbps · hasta 2 routers · sin Orb · soporte 24/7 estándar',
+      '$100.000/mes · hasta 2 Gbps · hasta 2 routers · equipo Orb · soporte VIP 24/7',
+    ],
+    correcta: 1,
+    explicacion: 'Para estratos 4, 5 y 6 el plan PRO 2.0 cuesta $120.000/mes (IVA incluido). Incluye: hasta 2 Gbps, puntos cableados ilimitados, routers ilimitados, equipo Orb y soporte VIP 24/7. Los $100.000 son para estratos 1, 2 y 3.',
+  },
+  {
+    nivel: 'medio',
+    texto: 'Un cliente con el plan "PRO 750 megas" llama preguntando si puede renovar ese plan. ¿Qué le dices?',
+    opciones: [
+      'Que sí puede renovar el plan porque es un cliente activo',
+      'Que ese plan ya no está vigente — no se puede contratar ni renovar, aunque clientes activos pueden mantenerlo si ya lo tienen',
+      'Que debe actualizar obligatoriamente al PRO 2.0',
+      'Que debe comunicarse con el área comercial para tramitar la renovación',
+    ],
+    correcta: 1,
+    explicacion: 'El plan PRO 750 megas está en la lista de planes no vigentes. No se puede contratar ni renovar. Si el cliente ya lo tiene activo, puede mantenerlo, pero no puede ser re-contratado. Es importante explicarlo correctamente sin generar alarma ni forzar un cambio de plan.',
+  },
+  // ── FACTURACIÓN ─────────────────────────────────────────────
+  {
+    nivel: 'facil',
+    texto: '¿Qué diferencia hay entre la facturación automática y la manual en Somos?',
+    opciones: [
+      'La automática es para clientes PRO y la manual para clientes Essential',
+      'La automática genera el link de pago por sistema y lo envía 10 días antes del vencimiento. La manual es para clientes especiales como B2B VIP: Finanzas genera la factura electrónica y el cliente paga directamente a una cuenta bancaria',
+      'Ambas son iguales — la diferencia es solo el canal por el que llega al cliente (correo vs WhatsApp)',
+      'La automática aplica cuando el cliente tiene domiciliación bancaria y la manual cuando paga en efectivo',
+    ],
+    correcta: 1,
+    explicacion: 'La facturación automática genera el link de pago por sistema y lo envía 10 días antes del vencimiento. La manual es para clientes especiales (B2B VIP): Finanzas genera la factura electrónica y el cliente paga directamente a una cuenta bancaria. El analista no crea pre-invoice para clientes B2B VIP — escala al BPO si no encuentran la factura en Wompi.',
+  },
+  {
+    nivel: 'medio',
+    texto: 'Un cliente B2B VIP llama diciendo que no recibió su factura del mes. ¿Qué hace el analista?',
+    opciones: [
+      'Crear un pre-invoice desde Artemis y enviárselo por WhatsApp',
+      'Buscar la factura en Wompi y enviársela si está disponible. Si no aparece en Wompi, escalar al BPO — no crear pre-invoice para estos clientes',
+      'Transferirlo al área comercial porque los B2B VIP tienen ejecutivo asignado',
+      'Reenviarle el link de pago automático que el sistema genera',
+    ],
+    correcta: 1,
+    explicacion: 'Para B2B VIP: 1) Buscar en Wompi si está disponible. 2) Si no aparece, escalar al BPO. NO se crea pre-invoice para clientes B2B VIP — ese proceso aplica solo para clientes B2C. Los B2B VIP tienen facturación manual gestionada por Finanzas.',
+  },
+  {
+    nivel: 'medio',
+    texto: '¿Cuándo se envía el link de pago al cliente y cómo se hace correctamente?',
+    opciones: [
+      'Siempre que el cliente lo pide, se genera desde Wompi y se envía por WhatsApp personal del analista',
+      'Solo cuando el cliente no ha recibido el link automático. Se verifica primero en Artemis que el automático no llegó, se confirma el canal registrado y se reenvía desde Artemis por canal oficial',
+      'El link se envía automáticamente todos los días 1 del mes sin intervención del analista',
+      'Se envía siempre por correo electrónico 30 días antes del vencimiento',
+    ],
+    correcta: 1,
+    explicacion: 'El link de pago solo se reenvía cuando el automático no llegó. El proceso: 1) Verificar en Artemis que el link automático fue enviado y no llegó. 2) Confirmar el número de WhatsApp o correo registrado. 3) Reenviar desde Artemis por canal oficial. Nunca por canales personales del analista.',
+  },
+  // ── PRORRATEO ───────────────────────────────────────────────
+  {
+    nivel: 'medio',
+    texto: 'CASO\n\nAndrés Torres dice: "Me cobraron $87.000 este mes pero mi plan Essential (estrato 1-3) es de $63.000. ¿Por qué me cobraron más?"\n\nEl servicio se activó el día 14 del mes. ¿Cuál es la explicación correcta?',
+    opciones: [
+      'Hubo un error en el sistema — se debe escalar a Cobranzas para que lo corrijan',
+      'Le aplicaron un descuento por ser cliente nuevo que solo aplica el primer mes',
+      'El cobro corresponde a un prorrateo: $63.000 ÷ 30 días = $2.100/día × ~17 días activos desde el día 14 = ~$35.700, más el mes siguiente adelantado. Eso no suma $87.000 — hay que revisar si hay otro cargo adicional',
+      'Es el cobro proporcional a los días de servicio activo desde el día 14 hasta el final del ciclo',
+    ],
+    correcta: 3,
+    explicacion: '$63.000 ÷ 30 días = $2.100/día. Con activación el día 14, tuvo ~17 días activos: 17 × $2.100 ≈ $35.700. La factura de $87.000 no corresponde solo al prorrateo del plan — hay que revisar qué otros servicios o cargos adicionales están incluidos. La respuesta D es la más correcta conceptualmente aunque debe complementarse con una revisión.',
+  },
+  {
+    nivel: 'dificil',
+    texto: 'Un cliente con plan Essential ($75.000/mes, estrato 4) activó un TV Box adicional ($10.000/mes) hace 20 días, con ciclo de facturación de 30 días. ¿Cuánto aprox. incluye la próxima factura por concepto del TV Box?',
+    opciones: [
+      '$10.000 — el mes completo del TV Box',
+      '$6.667 — solo el prorrateo de 20 días ya consumidos',
+      '$16.667 — el prorrateo de 20 días ($6.667) más el mes recurrente adelantado ($10.000)',
+      '$20.000 — cobro doble por política de activación tardía',
+    ],
+    correcta: 2,
+    explicacion: '$10.000 ÷ 30 días = $333/día. Prorrateo de 20 días = $333 × 20 = $6.667. Más el mes recurrente adelantado de $10.000. Total por TV Box = ~$16.667. Esto es normal y se explica al cliente como el ajuste para alinear el TV Box con la fecha de corte de su cuenta.',
+  },
+  // ── ESTADOS DEL SERVICIO ─────────────────────────────────────
+  {
+    nivel: 'facil',
+    texto: '¿Cuál es la diferencia fundamental entre un servicio en estado "Congelado" y uno en estado "Suspendido"?',
+    opciones: [
+      'Congelado = sin internet pero sigue facturando. Suspendido = sin internet y sin facturación',
+      'Congelado = suspensión temporal voluntaria del cliente con factura congelada y fecha de reactivación definida. Suspendido = corte por mora que se reactiva al verificar el pago',
+      'Ambos significan que el cliente no tiene internet — la diferencia es solo administrativa',
+      'Congelado = traslado en proceso. Suspendido = cancelación definitiva',
+    ],
+    correcta: 1,
+    explicacion: 'Congelado = el cliente pidió voluntariamente pausar el servicio por un período definido (30-60 días). La factura se congela — no hay cobro durante ese tiempo. Se reactiva automáticamente en la fecha acordada. Suspendido = corte por falta de pago (mora). Se reactiva al verificar el pago en el sistema. Confundirlos es uno de los errores más comunes y tiene impacto directo en la gestión.',
+  },
+  {
+    nivel: 'medio',
+    texto: 'Un servicio aparece como "Retirado" en Artemis. El cliente llama diciendo que canceló hace 3 meses pero ahora quiere volver a contratar. ¿Qué pasa?',
+    opciones: [
+      'Se puede reconectar el servicio directamente desde Artemis sin trámite adicional',
+      'El estado Retirado significa cancelación definitiva — requiere un nuevo proceso de instalación completo, no una simple reactivación',
+      'Se puede reactivar pagando la deuda pendiente si la hay',
+      'El servicio Retirado se puede reconectar dentro de los 6 meses siguientes a la cancelación',
+    ],
+    correcta: 1,
+    explicacion: 'El estado Retirado es cancelación definitiva — el servicio fue desinstalado. No se puede reconectar como una simple reactivación. Requiere un proceso nuevo de instalación completo, como si fuera un cliente nuevo. Esto es diferente a Suspendido (que sí se reactiva con el pago) o Congelado (que se reactiva automáticamente).',
+  },
+  // ── TRASLADO ─────────────────────────────────────────────────
+  {
+    nivel: 'medio',
+    texto: '¿Cuáles son los dos requisitos MÁS IMPORTANTES a verificar antes de poder gestionar un traslado de servicio?',
+    opciones: [
+      'Que el cliente tenga más de 3 meses de antigüedad y que su plan sea el más reciente',
+      'Que la suscripción esté en estado ACTIVO y que exista cobertura de Somos en la nueva dirección',
+      'Que el cliente esté al día en pagos y que la nueva dirección esté en la misma ciudad',
+      'Que no haya visitas técnicas pendientes y que el cliente firme una nueva cláusula',
+    ],
+    correcta: 1,
+    explicacion: 'Los dos requisitos fundamentales para un traslado son: 1) Suscripción en estado ACTIVO — si está Suspendida, el cliente debe normalizar su cuenta primero. 2) Cobertura en la nueva dirección — se verifica en Artemis desde el menú Expansión > Sites. Sin estos dos, no se puede proceder con el traslado.',
+  },
+  {
+    nivel: 'dificil',
+    texto: 'Al gestionar un traslado, el sistema muestra que el nuevo edificio es estrato 3 pero el cliente venía pagando $120.000/mes (PRO 2.0, estrato 4-6). ¿Qué debe hacer el analista?',
+    opciones: [
+      'Crear el traslado con el mismo precio porque el cliente ya es cliente activo',
+      'Informar al cliente que el plan y su valor pueden ajustarse según el estrato socioeconómico del nuevo edificio y explicarle el nuevo precio ($100.000/mes para PRO 2.0 en estrato 1-3) antes de confirmar el traslado',
+      'Cancelar el traslado porque no se pueden gestionar cambios de precio simultáneos con traslados',
+      'Aplicar el nuevo precio directamente sin consultar al cliente porque es un ajuste automático del sistema',
+    ],
+    correcta: 1,
+    explicacion: 'El analista debe informar proactivamente al cliente que el precio puede cambiar según el estrato del nuevo edificio. En este caso, el PRO 2.0 en estrato 3 cuesta $100.000/mes (vs $120.000/mes actual). Se informa antes de confirmar — no se aplica sin consultar, pero tampoco se bloquea el traslado por eso.',
+  },
+  // ── SUSPENSIÓN TEMPORAL ──────────────────────────────────────
+  {
+    nivel: 'medio',
+    texto: 'Un cliente pide suspender su servicio por 45 días a partir de mañana porque se va de viaje. La suscripción está activa y ya pagó varias facturas. ¿Cuándo inicia realmente la suspensión?',
+    opciones: [
+      'Mañana, como el cliente lo pidió',
+      'En la próxima fecha de corte — la suspensión siempre inicia en la próxima fecha de corte, no en la fecha de solicitud',
+      'El mismo día que se crea la solicitud en Artemis',
+      'En la fecha que el analista defina según disponibilidad del sistema',
+    ],
+    correcta: 1,
+    explicacion: 'La suspensión temporal SIEMPRE inicia en la próxima fecha de corte, independientemente de la fecha en que se solicite. Esto es una regla sin excepción que debe comunicarse al cliente claramente al momento de gestionar la solicitud para evitar malentendidos.',
+  },
+  {
+    nivel: 'dificil',
+    texto: 'CASO\n\nCarlos Jiménez usó una suspensión temporal de 30 días en febrero. Ahora en noviembre quiere suspender nuevamente por 60 días. La suscripción está activa y facturable.\n\n¿La solicitud procede?',
+    opciones: [
+      'Sí — han pasado más de 6 meses desde la última suspensión',
+      'No — la suspensión temporal solo puede usarse una vez por año y ya fue utilizada en el mismo año calendario',
+      'Sí — pero solo puede pedir 30 días porque ya usó 30 días del cupo anual de 60',
+      'Depende — si el formador aprueba, se puede hacer una excepción',
+    ],
+    correcta: 1,
+    explicacion: 'La suspensión temporal es un beneficio que solo puede utilizarse UNA VEZ POR AÑO. Carlos ya usó su cupo en febrero del mismo año. Aunque ahora quiere suspender en noviembre, y aunque han pasado varios meses, sigue siendo el mismo año. La solicitud no procede y debe informársele correctamente.',
+  },
+  // ── CAMBIO DE TITULARIDAD ────────────────────────────────────
+  {
+    nivel: 'dificil',
+    texto: 'CASO\n\nSofia Herrera llama diciendo que su mamá (titular del servicio) falleció hace un mes y quiere poner el servicio a su nombre. No tiene ningún tipo de contacto posible con la titular anterior.\n\n¿Cuál es la acción correcta?',
+    opciones: [
+      'Actualizar el nombre en Artemis inmediatamente por razones humanitarias',
+      'El trámite normal de cambio de titularidad no aplica porque el titular no puede autorizar. Escalar el caso a Back Office o área legal especificando la situación, ya que requiere tratamiento especial con documentación de sucesión o equivalente',
+      'Cancelar el servicio de la mamá e iniciar una nueva instalación a nombre de Sofía',
+      'Negarse a gestionar porque sin autorización del titular nunca se puede hacer nada',
+    ],
+    correcta: 1,
+    explicacion: 'Este es un caso especial — el titular no puede dar autorización porque falleció. El proceso estándar de cambio de titularidad no aplica directamente. El analista debe escalar a Back Office o área legal especificando la situación para que se gestione con la documentación apropiada (documento de defunción, etc.). No se actualiza en Artemis directamente, pero tampoco se niega el servicio sin orientar al cliente.',
+  },
+  // ── TICKETS Y ESCALAMIENTOS ──────────────────────────────────
+  {
+    nivel: 'medio',
+    texto: '¿Cuál es la información obligatoria que debe tener un ticket antes de enviarlo a Back Office?',
+    opciones: [
+      'Nombre del cliente y descripción breve del problema',
+      'Número de cuenta · Descripción del caso en hechos concretos · Historial de contactos previos · Lo que el cliente espera como solución',
+      'Número de caso, nombre del analista y fecha de creación',
+      'Solo el número de cuenta y el tipo de ticket',
+    ],
+    correcta: 1,
+    explicacion: 'Un ticket incompleto genera un retraso porque Back Office lo devuelve. Los 4 datos obligatorios son: número de cuenta, descripción en hechos concretos (no opiniones ni interpretaciones), historial de contactos previos y lo que el cliente espera como solución. Sin esta información, el BO no puede gestionar.',
+  },
+  {
+    nivel: 'dificil',
+    texto: 'CASO\n\nUn cliente necesita urgente un link de pago manual porque el sistema no lo generó. Ya pasaron las 3:00 PM y el Back Office cierra a las 5:00 PM. El analista crea el ticket pero no coloca el monto ni el canal de envío porque "eso lo sabe el BO".\n\n¿Qué problema genera esto?',
+    opciones: [
+      'Ninguno — el BO tiene acceso a Artemis y puede ver toda la información del cliente',
+      'El ticket será devuelto por información incompleta. El BO necesita el monto y el canal explícitos en el ticket — si se devuelve fuera de horario, el cliente sigue sin poder pagar. El error está en el analista, no en el BO',
+      'El BO puede asumir el canal por defecto (WhatsApp) y gestionar con el monto de la última factura',
+      'No es un error grave porque los tickets urgentes tienen prioridad automática',
+    ],
+    correcta: 1,
+    explicacion: 'Esta es exactamente la situación de error crítico en tickets de link manual. El BO NECESITA el monto y el canal explícitos — no los asume ni los busca. Un ticket incompleto se devuelve. Si se devuelve tarde, el cliente no puede pagar ese día. La responsabilidad es del analista que creó el ticket incompleto.',
+  },
+  // ── RETENCIÓN ────────────────────────────────────────────────
+  {
+    nivel: 'medio',
+    texto: 'Un cliente dice que se quiere ir porque Claro le ofrece lo mismo más barato. ¿Cuál es la secuencia correcta de acciones en retención?',
+    opciones: [
+      'Ofrecerle inmediatamente un 20% de descuento para retenerlo antes de que cuelgue',
+      'Identificar la causa raíz escuchando sin interrumpir → responder con diferenciadores de Somos (velocidades simétricas, sin permanencia, 30 días gratis, técnicos propios) → solo si persiste, escalar a ofertas según protocolo',
+      'Transferirlo al área de Retención porque ese caso supera las competencias del analista de PQR',
+      'Decirle que Claro tiene mala calidad y convencerlo de que Somos es mejor sin escuchar su motivo real',
+    ],
+    correcta: 1,
+    explicacion: 'El protocolo de retención es escalonado: primero escuchar para identificar la causa raíz, luego responder con los diferenciadores reales de Somos, y solo si el cliente persiste, escalar a ofertas concretas. El 50% de descuento jamás es la primera oferta. No se invalida lo que ofrece la competencia sin primero entender por qué el cliente quiere irse.',
+  },
+  // ── PQR ─────────────────────────────────────────────────────
+  {
+    nivel: 'medio',
+    texto: '¿Cuándo se debe abrir un formulario de PQR y cuál es el tiempo de respuesta que se le da al cliente?',
+    opciones: [
+      'Siempre que el cliente llama. Tiempo de respuesta: 5 días hábiles',
+      'Solo cuando el cliente exige una corrección formal o deja constancia de una insatisfacción. Tiempo: 15 días hábiles. Se entrega el CUN como constancia del radicado',
+      'Solo para quejas por facturación. Tiempo: 30 días calendario',
+      'Cuando el analista considera que el caso es complejo. No hay tiempo fijo de respuesta',
+    ],
+    correcta: 1,
+    explicacion: 'PQR se abre cuando el cliente exige corrección de algo o formaliza una insatisfacción — no para consultas informativas simples. El tiempo de respuesta es 15 días hábiles. El CUN es obligatorio: es la constancia del radicado que debe entregarse al cliente y registrarse en Artemis. Sin CUN, el caso no existe en el sistema.',
+  },
+  {
+    nivel: 'dificil',
+    texto: 'Al llenar el formulario de PQR, el cliente dice literalmente: "Es que el internet siempre me falla y ya estoy muy cansado de tanto inconveniente con esta empresa". ¿Cómo se escribe en el campo descripción del formulario?',
+    opciones: [
+      '"El cliente reporta intermitencia en el servicio de internet y expresa inconformidad con la calidad del servicio"',
+      '"El cliente dice que el internet siempre le falla y que está muy cansado de tantos inconvenientes con la empresa" — se transcribe TAL CUAL lo dice el cliente, sin modificar ni interpretar',
+      '"Se evidencia problema técnico recurrente con posible causa en el nodo del edificio"',
+      '"Cliente insatisfecho por fallas técnicas — se requiere revisión prioritaria por parte del área de Soporte"',
+    ],
+    correcta: 1,
+    explicacion: 'El campo descripción del formulario de PQR debe transcribirse TAL CUAL lo dice el cliente — sin modificar, sin interpretar, sin usar lenguaje técnico que el cliente no usó. Esto es una regla crítica del proceso PQR. Las opciones A, C y D son interpretaciones o reescrituras del analista, lo cual no está permitido.',
+  },
+  // ── PROTECCIÓN DE DATOS ──────────────────────────────────────
+  {
+    nivel: 'dificil',
+    texto: 'Un cliente pide el teléfono de su vecino del apto 502 que también tiene Somos, para devolverle un router prestado. ¿Qué haces?',
+    opciones: [
+      'Buscar al vecino en Artemis y compartir el teléfono ya que es para algo positivo',
+      'Pedirle el nombre del vecino, verificar si es cliente y compartir solo el teléfono si coincide',
+      'Explicarle que bajo ninguna circunstancia se comparten datos de un cliente con otro tercero (Ley 1581 de 2012) y sugerirle una alternativa para contactar a su vecino por otros medios',
+      'Transferir la solicitud al área legal para que ellos decidan si procede',
+    ],
+    correcta: 2,
+    explicacion: 'Bajo ninguna circunstancia se comparten datos personales de un cliente con un tercero, sin importar el motivo. La Ley 1581 de 2012 (Ley de Protección de Datos) lo prohíbe sin autorización expresa del titular. El analista debe explicarlo con claridad y sugerir una alternativa (contactar directamente al vecino en persona, por ejemplo).',
+  },
+];
+
+// ── Instancia del motor ─────────────────────────────────────────
+const quiz = new SomosQuiz({
+  title: 'Certificación SAC',
+  quizId: 'certificacion_sac_dia4',
+  minApproval: 85,
+  preguntas: PREGUNTAS_CERT,
+  shuffleQuestions: true,
+  shuffleOptions: false,
+  trackCheating: true,
+});
+
+// ── Validación y flujo ──────────────────────────────────────────
+function validateForm() {
+  const nombre = document.getElementById('input-nombre').value.trim();
+  const email = document.getElementById('input-email').value.trim();
+  const emailOk = /^[a-zA-Z0-9._%+-]+@somosinternet\.co$/i.test(email);
+  const emailInput = document.getElementById('input-email');
+  const emailError = document.getElementById('email-error');
+  if (email.length > 5 && !emailOk) { emailInput.classList.add('error'); emailError.style.display = 'block'; }
+  else { emailInput.classList.remove('error'); emailError.style.display = 'none'; }
+  document.getElementById('btn-start').disabled = !(nombre.length >= 3 && emailOk);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function iniciarQuiz() {
+  const nombre = document.getElementById('input-nombre').value.trim();
+  const email = document.getElementById('input-email').value.trim();
+  quiz.start(nombre, email);
+  document.getElementById('header-info').textContent = nombre;
+  showScreen('screen-quiz');
+  renderPregunta();
+  quiz.markQuestionStart();
+}
+
+function updateApprovalBar() {
+  const total = quiz.preguntasActivas.length;
+  const remaining = total - quiz.current;
+  const maxPossible = quiz.score + remaining;
+  const currentPct = quiz.current > 0 ? Math.round((quiz.score / quiz.current) * 100) : 0;
+  const bar = document.getElementById('approval-bar');
+  const pctEl = document.getElementById('approval-pct');
+  if (quiz.current > 0) {
+    pctEl.textContent = currentPct + '%';
+    bar.style.width = Math.min(currentPct, 100) + '%';
+    bar.className = 'approval-bar' + (currentPct >= 85 ? ' passing' : '');
+  }
+}
+
+function renderPregunta() {
+  const q = quiz.preguntasActivas[quiz.current];
+  const total = quiz.preguntasActivas.length;
+  const pct = Math.round((quiz.current / total) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-txt').textContent = `Pregunta ${quiz.current + 1} de ${total}`;
+  document.getElementById('prog-score').textContent = `✓ ${quiz.score} correctas`;
+  const pill = document.getElementById('nivel-pill');
+  pill.textContent = nivelLabel(q.nivel);
+  pill.className = 'nivel-pill ' + nivelBadgeClass(q.nivel);
+  document.getElementById('q-num').textContent = `Pregunta ${quiz.current + 1}`;
+  document.getElementById('q-text').textContent = q.texto;
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.opciones.forEach((op, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${op}</span>`;
+    div.onclick = () => seleccionar(i);
+    container.appendChild(div);
+  });
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+  updateApprovalBar();
+}
+
+function seleccionar(idx) {
+  const result = quiz.answer(idx);
+  const opts = document.querySelectorAll('.option');
+  opts.forEach(o => { o.classList.add('disabled'); o.onclick = null; });
+  opts[idx].classList.add(result.isCorrect ? 'correct' : 'wrong');
+  if (!result.isCorrect) opts[result.correcta].classList.add('correct');
+  const fb = document.getElementById('feedback');
+  const title = document.getElementById('fb-title');
+  fb.className = 'feedback-box ' + (result.isCorrect ? 'correct' : 'wrong');
+  title.className = 'fb-title ' + (result.isCorrect ? 'correct' : 'wrong');
+  title.textContent = result.isCorrect ? '✅ ¡Correcto!' : '❌ Incorrecto';
+  document.getElementById('fb-body').textContent = result.explicacion;
+  fb.style.display = 'block';
+  document.getElementById('prog-score').textContent = `✓ ${quiz.score} correctas`;
+  const btn = document.getElementById('btn-next');
+  btn.textContent = quiz.current < quiz.preguntasActivas.length - 1 ? 'Siguiente pregunta →' : 'Ver resultados →';
+  btn.style.display = 'block';
+}
+
+function siguientePregunta() {
+  quiz.next();
+  if (quiz.current < quiz.preguntasActivas.length) { renderPregunta(); quiz.markQuestionStart(); }
+  else terminar();
+}
+
+async function terminar() {
+  showScreen('screen-sending');
+  const saved = await quiz.save();
+  mostrarResultados(saved);
+}
+
+function mostrarResultados(saved) {
+  const r = quiz.getResults();
+  const approved = r.pct >= 85;
+  document.getElementById('res-pct').textContent = r.pct + '%';
+  document.getElementById('res-frac').textContent = r.score + '/' + r.total;
+  document.getElementById('res-name').textContent = quiz.userName;
+  const circle = document.getElementById('score-circle');
+  circle.className = 'score-circle ' + (approved ? 'approved' : 'failed');
+  const status = document.getElementById('res-status');
+  status.className = 'score-status ' + (approved ? 'approved' : 'failed');
+  status.textContent = approved ? '✅ CERTIFICACIÓN APROBADA' : '❌ NO APROBADO — Refuerzo requerido';
+  document.getElementById('res-msg').textContent = resultMessage(r.pct, 85);
+  ['facil', 'medio', 'dificil'].forEach(n => {
+    const el = document.getElementById('nb-' + n);
+    el.textContent = r.byNivel[n] ? r.byNivel[n].correct + '/' + r.byNivel[n].total : '—';
+  });
+  if (r.tabSwitches > 0 || r.focusLosses > 1) {
+    const al = document.getElementById('cheat-alert');
+    al.style.display = 'block';
+    document.getElementById('cheat-detail').textContent = `Cambios de pestaña: ${r.tabSwitches} · Pérdidas de foco: ${r.focusLosses}. Esta información quedó registrada con el resultado.`;
+  }
+  const syncEl = document.getElementById('sync-msg');
+  syncEl.style.display = 'block';
+  syncEl.className = 'sync-msg ' + (saved ? 'sync-ok' : 'sync-fail');
+  syncEl.textContent = saved ? '✅ Certificación registrada correctamente.' : '⚠ No se pudo registrar automáticamente. Informa tu puntaje al formador: ' + r.pct + '%';
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  quiz.userAnswers.forEach((a, i) => {
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (a.correcto ? 'ok' : 'fail');
+    const qShort = a.pregunta.split('\n')[0].substring(0, 90) + (a.pregunta.length > 90 ? '…' : '');
+    div.innerHTML = `<div class="ri-q">${a.correcto ? '✅' : '❌'} P${i + 1}: ${qShort}</div>
+      ${!a.correcto ? `<div class="ri-answer">Tu respuesta: ${a.respuestaTxt}</div><div class="ri-answer">Respuesta correcta: ${a.correctaTxt}</div><div class="ri-exp">${a.explicacion}</div>` : ''}`;
+    list.appendChild(div);
+  });
+  showScreen('screen-results');
+}
+
+function reiniciar() {
+  document.getElementById('input-nombre').value = '';
+  document.getElementById('input-email').value = '';
+  document.getElementById('btn-start').disabled = true;
+  showScreen('screen-welcome');
+}
+</script>
+</body>
+</html>
