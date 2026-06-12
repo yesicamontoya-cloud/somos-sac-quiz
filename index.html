@@ -3,489 +3,1336 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal de Evaluaciones · Formación Inicial SAC · Somos Internet</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Formación Inicial SAC · Somos Internet</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #F7F7F7; color: #1A1A1A; min-height: 100vh; }
 
-  :root {
-    --black: #0A0A0A;
-    --white: #FFFFFF;
-    --gray-100: #F5F5F5;
-    --gray-200: #E8E8E8;
-    --gray-400: #9E9E9E;
-    --gray-600: #616161;
-    --gray-800: #212121;
-    --green: #1A7A4A;
-    --green-light: #E6F4EC;
-    --red: #C0392B;
-    --red-light: #FDECEA;
-    --yellow: #7A6000;
-    --yellow-light: #FFF8E1;
-  }
+/* ── HEADER ── */
+.header { background: #000; color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.header-left img { width: 32px; height: 32px; border-radius: 4px; }
+.header-left h1 { font-size: 16px; font-weight: bold; }
+.header-left p { font-size: 12px; color: #A0A0A0; margin-top: 2px; }
+.btn-formadora { background: transparent; border: 1px solid #444; color: #A0A0A0; padding: 7px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+.btn-formadora:hover { border-color: #fff; color: #fff; }
 
-  body {
-    font-family: 'Roboto', sans-serif;
-    background: var(--gray-100);
-    color: var(--black);
-    min-height: 100vh;
-  }
+/* ── SCREENS ── */
+.screen { display: none; }
+.screen.active { display: block; }
 
-  /* ─── HEADER ─── */
-  .site-header {
-    background: var(--black);
-    padding: 0 32px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
+/* ── HOME ── */
+.home { max-width: 640px; margin: 0 auto; padding: 36px 20px; }
+.home-hero { margin-bottom: 32px; }
+.home-hero h2 { font-size: 26px; font-weight: bold; margin-bottom: 6px; }
+.home-hero p { color: #6B6B6B; font-size: 14px; line-height: 1.6; }
+.name-row { display: flex; gap: 10px; margin-bottom: 32px; }
+.name-input { flex: 1; padding: 12px 16px; border: 2px solid #D4D4D4; border-radius: 8px; font-size: 15px; outline: none; transition: border-color 0.2s; }
+.name-input:focus { border-color: #000; }
+.btn-continuar { background: #000; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-size: 14px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+.btn-continuar:disabled { background: #D4D4D4; cursor: not-allowed; }
 
-  .logo-area {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
+.modulos-title { font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #A0A0A0; margin-bottom: 12px; }
+.modulos-list { display: flex; flex-direction: column; gap: 10px; }
+.modulo-card { background: #fff; border: 1.5px solid #E0E0E0; border-radius: 12px; padding: 18px 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: all 0.15s; position: relative; }
+.modulo-card:hover:not(.locked) { border-color: #000; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.modulo-card.locked { cursor: not-allowed; opacity: 0.5; }
+.modulo-card.done { border-color: #28A745; }
+.modulo-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.modulo-icon.color-blue { background: #E8F4FD; }
+.modulo-icon.color-yellow { background: #FFF8E1; }
+.modulo-icon.color-green { background: #E8F5E9; }
+.modulo-info { flex: 1; }
+.modulo-info h3 { font-size: 15px; font-weight: bold; margin-bottom: 3px; }
+.modulo-info p { font-size: 13px; color: #6B6B6B; }
+.modulo-right { text-align: right; flex-shrink: 0; }
+.modulo-pct { font-size: 18px; font-weight: bold; color: #28A745; }
+.modulo-pct.na { color: #D4D4D4; font-size: 13px; }
+.modulo-lock { font-size: 18px; color: #C0C0C0; }
+.modulo-bar-wrap { width: 80px; height: 5px; background: #E0E0E0; border-radius: 3px; margin-top: 5px; margin-left: auto; }
+.modulo-bar { height: 5px; background: #28A745; border-radius: 3px; transition: width 0.4s; }
+.modulo-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #D4EDDA; color: #155724; font-weight: bold; display: inline-block; margin-top: 4px; }
+.modulo-badge.pending { background: #FFF3CD; color: #856404; }
+.modulo-badge.locked-badge { background: #F0F0F0; color: #A0A0A0; }
 
-  .logo-svg {
-    width: 32px;
-    height: 32px;
-  }
+/* ── QUIZ ── */
+.quiz-container { max-width: 680px; margin: 0 auto; padding: 24px 20px; }
+.quiz-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.prog-text { font-size: 13px; color: #6B6B6B; }
+.timer-box { background: #000; color: #fff; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; font-variant-numeric: tabular-nums; }
+.timer-box.warning { background: #DC3545; }
+.progress-bar-wrap { background: #E0E0E0; border-radius: 4px; height: 6px; margin-bottom: 20px; }
+.progress-bar { background: #000; height: 6px; border-radius: 4px; transition: width 0.4s; }
+.question-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; }
+.question-number { font-size: 12px; color: #A0A0A0; margin-bottom: 8px; }
+.question-text { font-size: 16px; line-height: 1.6; font-weight: 600; white-space: pre-line; }
+.options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.option { background: #fff; border: 2px solid #E0E0E0; border-radius: 8px; padding: 14px 18px; cursor: pointer; font-size: 15px; line-height: 1.5; transition: all 0.15s; display: flex; align-items: flex-start; gap: 12px; }
+.option:hover:not(.disabled) { border-color: #000; background: #F7F7F7; }
+.option.correct { border-color: #28A745; background: #D4EDDA; }
+.option.wrong { border-color: #DC3545; background: #F8D7DA; }
+.option.disabled { cursor: default; }
+.option-letter { font-weight: bold; min-width: 20px; }
+.feedback { border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; font-size: 14px; line-height: 1.6; display: none; }
+.feedback.correct { background: #D4EDDA; border-left: 4px solid #28A745; }
+.feedback.wrong { background: #F8D7DA; border-left: 4px solid #DC3545; }
+.feedback .fb-title { font-weight: bold; margin-bottom: 4px; }
+.btn-next { width: 100%; background: #000; color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: bold; cursor: pointer; display: none; }
+.btn-back-home { background: transparent; border: 1.5px solid #D4D4D4; color: #6B6B6B; border-radius: 8px; padding: 10px 18px; font-size: 13px; cursor: pointer; margin-bottom: 16px; }
+.btn-back-home:hover { border-color: #000; color: #000; }
 
-  .header-title {
-    color: var(--white);
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.3px;
-  }
+/* ── RESULTADOS ── */
+.results { max-width: 640px; margin: 0 auto; padding: 32px 20px; }
+.score-circle { width: 130px; height: 130px; border-radius: 50%; background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; }
+.score-circle .score-num { font-size: 38px; font-weight: bold; line-height: 1; }
+.score-circle .score-label { font-size: 12px; color: #A0A0A0; margin-top: 2px; }
+.result-name { text-align: center; font-size: 20px; font-weight: bold; margin-bottom: 4px; }
+.result-sub { text-align: center; color: #6B6B6B; font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
+.result-time { text-align: center; font-size: 13px; color: #A0A0A0; margin-bottom: 20px; }
+.review-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.review-item { background: #fff; border-radius: 8px; padding: 14px 16px; border-left: 4px solid; font-size: 14px; line-height: 1.5; }
+.review-item.ok { border-color: #28A745; }
+.review-item.fail { border-color: #DC3545; }
+.review-item .ri-q { font-weight: 600; margin-bottom: 4px; }
+.review-item .ri-exp { color: #6B6B6B; font-size: 13px; margin-top: 6px; }
+.sync-status { text-align: center; padding: 11px; border-radius: 8px; font-size: 14px; margin-bottom: 16px; }
+.sync-ok { background: #D4EDDA; color: #155724; }
+.sync-fail { background: #FFF3CD; color: #856404; }
+.result-btns { display: flex; gap: 10px; }
+.btn-retry { flex: 1; background: #F7F7F7; color: #000; border: 1.5px solid #D4D4D4; border-radius: 8px; padding: 13px; font-size: 14px; font-weight: bold; cursor: pointer; }
+.btn-home { flex: 1; background: #000; color: #fff; border: none; border-radius: 8px; padding: 13px; font-size: 14px; font-weight: bold; cursor: pointer; }
 
-  .header-tag {
-    color: var(--gray-400);
-    font-size: 11px;
-    font-weight: 400;
-    margin-top: 1px;
-  }
+/* ── ENVIANDO ── */
+.sending { text-align: center; padding: 60px 20px; }
+.spinner { width: 44px; height: 44px; border: 4px solid #E0E0E0; border-top-color: #000; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  .header-badge {
-    background: var(--gray-800);
-    color: var(--gray-400);
-    font-family: 'Roboto Mono', monospace;
-    font-size: 10px;
-    padding: 4px 10px;
-    border-radius: 4px;
-    letter-spacing: 0.5px;
-  }
+/* ── TIEMPO AGOTADO ── */
+.timeout-screen { max-width: 480px; margin: 80px auto; padding: 0 20px; text-align: center; }
+.timeout-screen .icon { font-size: 56px; margin-bottom: 16px; }
+.timeout-screen h2 { font-size: 22px; font-weight: bold; margin-bottom: 8px; }
+.timeout-screen p { color: #6B6B6B; font-size: 14px; margin-bottom: 28px; line-height: 1.6; }
 
-  /* ─── HERO ─── */
-  .hero {
-    background: var(--black);
-    padding: 56px 32px 48px;
-    text-align: center;
-  }
+/* ── MODAL LOGIN FORMADORA ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 999; display: none; }
+.modal-overlay.open { display: flex; }
+.modal { background: #fff; border-radius: 14px; padding: 32px 28px; width: 360px; max-width: 90vw; }
+.modal h2 { font-size: 18px; font-weight: bold; margin-bottom: 6px; }
+.modal p { color: #6B6B6B; font-size: 13px; margin-bottom: 20px; }
+.modal input { width: 100%; padding: 11px 14px; border: 2px solid #D4D4D4; border-radius: 8px; font-size: 15px; margin-bottom: 10px; outline: none; }
+.modal input:focus { border-color: #000; }
+.modal-err { color: #DC3545; font-size: 13px; margin-bottom: 10px; display: none; }
+.modal-btns { display: flex; gap: 8px; }
+.btn-modal-cancel { flex: 1; background: #F7F7F7; border: 1.5px solid #D4D4D4; border-radius: 8px; padding: 11px; font-size: 14px; cursor: pointer; }
+.btn-modal-enter { flex: 1; background: #000; color: #fff; border: none; border-radius: 8px; padding: 11px; font-size: 14px; font-weight: bold; cursor: pointer; }
 
-  .hero-eyebrow {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 11px;
-    color: var(--gray-400);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
+/* ── TIPOS DE PREGUNTA ESPECIALES ── */
+.option-check { background: #fff; border: 2px solid #E0E0E0; border-radius: 8px; padding: 13px 16px; cursor: pointer; font-size: 14px; line-height: 1.5; transition: all 0.15s; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.option-check:hover:not(.disabled) { border-color: #000; background: #F7F7F7; }
+.option-check.selected { border-color: #1a73e8; background: #E8F0FE; }
+.option-check.correct { border-color: #28A745; background: #D4EDDA; }
+.option-check.wrong { border-color: #DC3545; background: #F8D7DA; }
+.option-check.disabled { cursor: default; }
+.option-check input[type=checkbox] { width:18px;height:18px;accent-color:#000;flex-shrink:0;cursor:pointer; }
+.multi-hint { font-size:12px;color:#6B6B6B;margin-bottom:12px;padding:8px 12px;background:#F7F7F7;border-radius:6px; }
+.btn-confirm-multi { background:#000;color:#fff;border:none;border-radius:8px;padding:12px 20px;font-size:14px;font-weight:bold;cursor:pointer;margin-bottom:16px;width:100%; }
+.btn-confirm-multi:disabled { background:#D4D4D4;cursor:not-allowed; }
 
-  .hero-title {
-    font-size: clamp(28px, 5vw, 44px);
-    font-weight: 900;
-    color: var(--white);
-    line-height: 1.1;
-    margin-bottom: 12px;
-    letter-spacing: -1px;
-  }
+.vf-row { display:flex;gap:12px;margin-bottom:16px; }
+.vf-btn { flex:1;padding:16px;border:2px solid #E0E0E0;border-radius:10px;font-size:15px;font-weight:bold;cursor:pointer;background:#fff;transition:all 0.15s; }
+.vf-btn:hover:not(.disabled) { border-color:#000; }
+.vf-btn.selected { border-color:#000;background:#F0F0F0; }
+.vf-btn.correct { border-color:#28A745;background:#D4EDDA; }
+.vf-btn.wrong { border-color:#DC3545;background:#F8D7DA; }
+.vf-btn.disabled { cursor:default; }
+.vf-sustenta { width:100%;padding:10px 14px;border:2px solid #D4D4D4;border-radius:8px;font-size:14px;font-family:Arial;resize:vertical;min-height:80px;outline:none;margin-bottom:10px; }
+.vf-sustenta:focus { border-color:#000; }
+.vf-sustenta-label { font-size:12px;color:#6B6B6B;margin-bottom:6px; }
 
-  .hero-title span {
-    color: var(--gray-400);
-    font-weight: 300;
-  }
+.match-container { display:flex;gap:16px;margin-bottom:16px; }
+.match-col { flex:1; }
+.match-col-title { font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:0.5px;color:#A0A0A0;margin-bottom:8px; }
+.match-term { background:#fff;border:2px solid #E0E0E0;border-radius:8px;padding:12px 14px;font-size:13px;margin-bottom:8px;cursor:pointer;transition:all 0.15s;font-weight:600; }
+.match-term:hover { border-color:#1a73e8;background:#E8F0FE; }
+.match-term.selected { border-color:#1a73e8;background:#E8F0FE; }
+.match-def { background:#F7F7F7;border:2px solid #E0E0E0;border-radius:8px;padding:12px 14px;font-size:13px;margin-bottom:8px;cursor:pointer;transition:all 0.15s;line-height:1.4; }
+.match-def:hover { border-color:#1a73e8;background:#E8F0FE; }
+.match-def.matched { border-color:#28A745;background:#D4EDDA;cursor:default; }
+.match-def.wrong-match { border-color:#DC3545;background:#F8D7DA; }
+.match-pair { font-size:12px;color:#28A745;font-weight:bold;margin-top:2px; }
+.match-hint { font-size:12px;color:#6B6B6B;margin-bottom:10px;padding:8px 12px;background:#F7F7F7;border-radius:6px; }
 
-  .hero-sub {
-    color: var(--gray-400);
-    font-size: 15px;
-    font-weight: 400;
-    max-width: 480px;
-    margin: 0 auto 36px;
-    line-height: 1.6;
-  }
+/* ── PANEL FORMADORA ── */
+.panel { max-width: 900px; margin: 0 auto; padding: 28px 20px; }
+.panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.panel-header h2 { font-size: 22px; font-weight: bold; }
+.panel-tabs { display: flex; gap: 4px; background: #F0F0F0; border-radius: 8px; padding: 4px; margin-bottom: 24px; }
+.panel-tab { flex: 1; padding: 9px; text-align: center; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; color: #6B6B6B; transition: all 0.15s; }
+.panel-tab.active { background: #fff; color: #000; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.panel-section { display: none; }
+.panel-section.active { display: block; }
 
-  .hero-rule {
-    width: 40px;
-    height: 2px;
-    background: var(--white);
-    margin: 0 auto;
-    opacity: 0.2;
-  }
+/* Tabla resultados */
+.table-wrap { overflow-x: auto; background: #fff; border-radius: 10px; border: 1px solid #E0E0E0; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #F7F7F7; padding: 11px 14px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: #6B6B6B; border-bottom: 1px solid #E0E0E0; }
+td { padding: 11px 14px; border-bottom: 1px solid #F0F0F0; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+.pct-pill { display: inline-block; padding: 3px 10px; border-radius: 12px; font-weight: bold; font-size: 12px; }
+.pct-high { background: #D4EDDA; color: #155724; }
+.pct-mid { background: #FFF3CD; color: #856404; }
+.pct-low { background: #F8D7DA; color: #721C24; }
+.panel-refresh { background: #000; color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-size: 13px; font-weight: bold; cursor: pointer; }
+.stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+.stat-card { background: #fff; border: 1px solid #E0E0E0; border-radius: 10px; padding: 16px; text-align: center; }
+.stat-card .sv { font-size: 28px; font-weight: bold; }
+.stat-card .sl { font-size: 12px; color: #6B6B6B; margin-top: 3px; }
 
-  /* ─── MAIN CONTENT ─── */
-  .content {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 48px 24px 80px;
-  }
-
-  .section-label {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--gray-400);
-    margin-bottom: 20px;
-  }
-
-  /* ─── EVAL CARDS ─── */
-  .eval-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-bottom: 48px;
-  }
-
-  .eval-card {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: 12px;
-    padding: 28px 32px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 20px;
-    text-decoration: none;
-    color: inherit;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    cursor: pointer;
-  }
-
-  .eval-card:hover {
-    border-color: var(--black);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  }
-
-  .eval-card.locked {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-
-  .eval-card-left {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-  }
-
-  .eval-number {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--gray-400);
-    min-width: 24px;
-    padding-top: 3px;
-  }
-
-  .eval-info {}
-
-  .eval-day {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 10px;
-    color: var(--gray-400);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-
-  .eval-name {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--black);
-    margin-bottom: 8px;
-    letter-spacing: -0.3px;
-  }
-
-  .eval-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .pill {
-    font-size: 11px;
-    font-weight: 500;
-    padding: 3px 10px;
-    border-radius: 20px;
-    border: 1px solid var(--gray-200);
-    color: var(--gray-600);
-    background: var(--gray-100);
-  }
-
-  .pill.cert {
-    border-color: var(--black);
-    color: var(--black);
-    background: var(--white);
-  }
-
-  .eval-action {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-  }
-
-  .btn-go {
-    background: var(--black);
-    color: var(--white);
-    border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
-    font-family: 'Roboto', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.15s;
-  }
-
-  .btn-go:hover {
-    background: var(--gray-800);
-  }
-
-  .lock-label {
-    font-size: 11px;
-    color: var(--gray-400);
-    text-align: right;
-  }
-
-  /* ─── INFO STRIP ─── */
-  .info-strip {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--gray-200);
-    border: 1px solid var(--gray-200);
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 48px;
-  }
-
-  .info-cell {
-    background: var(--white);
-    padding: 20px 24px;
-  }
-
-  .info-cell-label {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--gray-400);
-    margin-bottom: 6px;
-  }
-
-  .info-cell-value {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--black);
-  }
-
-  /* ─── COMING SOON ─── */
-  .coming-soon-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  .coming-card {
-    background: var(--white);
-    border: 1px dashed var(--gray-200);
-    border-radius: 12px;
-    padding: 24px;
-    opacity: 0.6;
-  }
-
-  .coming-label {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--gray-400);
-    margin-bottom: 8px;
-  }
-
-  .coming-name {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--gray-600);
-  }
-
-  .coming-tag {
-    font-size: 11px;
-    color: var(--gray-400);
-    margin-top: 4px;
-  }
-
-  /* ─── FOOTER ─── */
-  .site-footer {
-    background: var(--black);
-    padding: 24px 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .footer-text {
-    font-size: 12px;
-    color: var(--gray-600);
-  }
-
-  .footer-version {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 10px;
-    color: var(--gray-600);
-    letter-spacing: 1px;
-  }
-
-  @media (max-width: 600px) {
-    .eval-card { grid-template-columns: 1fr; }
-    .eval-action { align-items: flex-start; }
-    .info-strip { grid-template-columns: 1fr; }
-    .coming-soon-grid { grid-template-columns: 1fr; }
-    .hero { padding: 40px 20px 36px; }
-    .content { padding: 32px 16px 60px; }
-  }
+/* Editor preguntas */
+.q-editor-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.q-editor-card { background: #fff; border: 1.5px solid #E0E0E0; border-radius: 10px; padding: 18px 20px; }
+.q-editor-card h4 { font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #6B6B6B; }
+.q-editor-card textarea { width: 100%; padding: 9px 12px; border: 1.5px solid #D4D4D4; border-radius: 6px; font-size: 14px; font-family: Arial; resize: vertical; outline: none; }
+.q-editor-card textarea:focus { border-color: #000; }
+.q-opts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.q-opt-row { display: flex; align-items: center; gap: 6px; }
+.q-opt-row input[type=text] { flex: 1; padding: 8px 10px; border: 1.5px solid #D4D4D4; border-radius: 6px; font-size: 13px; outline: none; }
+.q-opt-row input[type=text]:focus { border-color: #000; }
+.q-opt-row input[type=radio] { accent-color: #000; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+.q-opt-label { font-size: 12px; font-weight: bold; width: 16px; text-align: center; }
+.q-editor-meta { display: flex; gap: 10px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+.q-editor-meta label { font-size: 12px; color: #6B6B6B; }
+.q-editor-meta select { padding: 6px 10px; border: 1.5px solid #D4D4D4; border-radius: 6px; font-size: 13px; outline: none; }
+.q-select-module { font-size: 12px; }
+.btn-save-questions { background: #000; color: #fff; border: none; border-radius: 8px; padding: 12px 24px; font-size: 14px; font-weight: bold; cursor: pointer; }
+.save-msg { display: none; padding: 10px 16px; background: #D4EDDA; color: #155724; border-radius: 8px; font-size: 13px; font-weight: bold; margin-top: 10px; }
+.module-selector { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.ms-btn { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; border: 1.5px solid #D4D4D4; background: #fff; color: #6B6B6B; transition: all 0.15s; }
+.ms-btn.active { background: #000; color: #fff; border-color: #000; }
+.sheet-sync-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.sheet-sync-row input { flex: 1; min-width: 200px; padding: 9px 12px; border: 1.5px solid #D4D4D4; border-radius: 6px; font-size: 13px; outline: none; }
+.sheet-sync-row input:focus { border-color: #000; }
+.btn-sync-sheet { background: #1a73e8; color: #fff; border: none; border-radius: 6px; padding: 9px 16px; font-size: 13px; font-weight: bold; cursor: pointer; }
+.sync-note { font-size: 12px; color: #6B6B6B; line-height: 1.5; }
 </style>
 </head>
 <body>
 
-<header class="site-header">
-  <div class="logo-area">
-    <svg class="logo-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="120" height="120" fill="black"/>
-      <path d="M20 72 C20 62 28 55 38 55 C43 55 47 57 50 61 C53 57 57 55 62 55 C67 55 71 57 74 61 C77 57 81 55 86 55 C96 55 104 62 104 72 C104 82 96 89 86 89 C81 89 77 87 74 83 C71 87 67 89 62 89 C57 89 53 87 50 83 C47 87 43 89 38 89 C28 89 20 82 20 72 Z" fill="white"/>
-    </svg>
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCACUAJQDASIAAhEBAxEB/8QAHAABAQADAAMBAAAAAAAAAAAAAAgBBgkCAwUH/8QAPBAAAgECBAIGBQkJAQAAAAAAAAECAwQFBhESBxMICRQhMUEVMnGBkTM2N1Fhc6GxshYYIjQ1YnJ0s3X/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AjIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA2nhdkPMPEbN1tlnLdsqt1V1nUqTelOhTXrVJvyS/FtJAasCwf3H73sH0j2npDTXlei3y/Zu5uumvnt9xNPFTIGYuG+brjLWZLZU7mmlOlVhq6dem/CcJea8vsaa8gNUBtfCvIOYeJGbqGWct28al1Ui6lWpUelOhSWm6pN+SWqX2tpeZS0ug/e9g/h4j2rxDTXlPC2qfs3c3X37fcBHwNo4oZEzDw5zbcZazJbKjdUkp06kHrTr03rtnB+aenu70auAAAAAAAAAAAAAAAABQ3Sv4D5c4Q4DgeIYJjGK39TEbmdGpG85ekVGCeq2xXeb51a9vRVxnzENidxRoWdOEn5RbrNr3uK+B9/rJvmblD/frf80fG6tn+V4g/4WX5XAH4BV4iZ0XGh5i/aTEu3Rxren2mW3RVvU266bNO7bppp3FCdZNa28rTJeJcmKuZu4pOa8dmkJafFkoVvpCn/wCs/wDqVp1kf9ByP95cfppgerq2bO3ha50xTlp3KdvR3f2JTlovf+SJxwziVnifFG3zVLMmJPEp4lGrKXaZ7WnPvht10UNHpt000KW6tz5vZ0++ofokRtZVoW+NULiprspXMZy0Wr0UtWBW3WV29FXeQb9U4q5rUL6nUmvFxi7dxXuc5fEj0obpk8YMocVqeUVlX0hrhMbtXPardU/lORt2971+Tl+BPIAAAAAAAAAAAAAAAAHQqtHIXSo4RYRa18f9HY7ZShVq06c4863uFHbUTpv1oS72n7PYeFjh/D3orcK8elHHViWO4lByjTqziq91VjFxpQjCPqwi5Ntvw1k/qRz5i3GSlFtNPVNeQk3KTlJtt97b8wPf2u4WIdulPdcc3nOT85666/E6A31pkDpVcKMFpen3huNYe1UqU6co8+2rbNtSEoP1oS0TTX1Lv8Uc9jMZSjJSi2mvBp+AHQa2tsg9FfhNjNGjj3pLHr/dOnTqSjzritt204qmvVhHxbf29/gjny22229W/Fhtt7m22/NmAMt6mAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//2Q==" alt="Somos">
     <div>
-      <div class="header-title">Formación Inicial SAC</div>
-      <div class="header-tag">Somos Internet · Portal de Evaluaciones</div>
+      <h1>Formación Inicial SAC</h1>
+      <p>Somos Internet · Portal de evaluaciones</p>
     </div>
   </div>
-  <div class="header-badge">2026</div>
-</header>
+  <button class="btn-formadora" onclick="openLoginModal()">🔐 Panel formadora</button>
+</div>
 
-<section class="hero">
-  <p class="hero-eyebrow">Centro de Evaluación</p>
-  <h1 class="hero-title">Tus evaluaciones<br><span>en un solo lugar</span></h1>
-  <p class="hero-sub">Completa cada evaluación al final del día correspondiente. Los resultados quedan registrados automáticamente.</p>
-  <div class="hero-rule"></div>
-</section>
+<!-- ══════════════════════════════ SCREENS ══════════════════════════════ -->
 
-<main class="content">
-
-  <div class="info-strip">
-    <div class="info-cell">
-      <div class="info-cell-label">Correo corporativo</div>
-      <div class="info-cell-value">@somosinternet.co</div>
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="home">
+    <div class="home-hero">
+      <h2>Hola, <span id="home-nombre">analista</span> 👋</h2>
+      <p>Completa los módulos en orden. Cada quiz debe terminarse antes de desbloquear el siguiente.</p>
     </div>
-    <div class="info-cell">
-      <div class="info-cell-label">Aprobación certificaciones</div>
-      <div class="info-cell-value">85% o más</div>
+    <div class="name-row">
+      <input type="text" class="name-input" id="nombre-input" placeholder="Escribe tu nombre completo" oninput="onNombreInput()">
+      <button class="btn-continuar" id="btn-continuar" onclick="confirmarNombre()" disabled>Continuar →</button>
     </div>
-    <div class="info-cell">
-      <div class="info-cell-label">Resultados</div>
-      <div class="info-cell-value">Se guardan solos</div>
+    <div id="modulos-wrap" style="display:none">
+      <div class="modulos-title">Mis módulos</div>
+      <div class="modulos-list" id="modulos-list"></div>
     </div>
   </div>
+</div>
 
-  <p class="section-label">Fase 1 · SAC</p>
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-container">
+    <button class="btn-back-home" onclick="goHome()">← Volver al inicio</button>
+    <div class="quiz-topbar">
+      <span class="prog-text" id="prog-text">Pregunta 1 de 8</span>
+      <div class="timer-box" id="timer-box">⏱ 10:00</div>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+    <div class="question-card">
+      <div class="question-number" id="q-number">Pregunta 1</div>
+      <div class="question-text" id="q-text"></div>
+    </div>
+    <div class="options" id="options-container"></div>
+    <div class="feedback" id="feedback">
+      <div class="fb-title" id="fb-title"></div>
+      <div id="fb-text"></div>
+    </div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Siguiente pregunta →</button>
+  </div>
+</div>
 
-  <div class="eval-grid">
+<!-- ENVIANDO -->
+<div id="screen-sending" class="screen">
+  <div class="sending">
+    <div class="spinner"></div>
+    <p style="font-size:16px;font-weight:bold;">Guardando tus resultados...</p>
+    <p style="color:#6B6B6B;margin-top:8px;font-size:14px;">Un momento por favor</p>
+  </div>
+</div>
 
-    <div class="eval-card" onclick="window.location.href='quiz-dias-1-2.html'">
-      <div class="eval-card-left">
-        <div class="eval-number">01</div>
-        <div class="eval-info">
-          <div class="eval-day">Días 1 y 2</div>
-          <div class="eval-name">Quiz · Identidad, Herramientas, Facturación y Trámites</div>
-          <div class="eval-meta">
-            <span class="pill">5 preguntas</span>
-            <span class="pill">Dificultad alta</span>
-            <span class="pill">Diagnóstico · Sin umbral</span>
-          </div>
+<!-- TIEMPO AGOTADO -->
+<div id="screen-timeout" class="screen">
+  <div class="timeout-screen">
+    <div class="icon">⏰</div>
+    <h2>Se acabó el tiempo</h2>
+    <p>No alcanzaste a terminar el quiz a tiempo. Puedes volver a intentarlo — tus intentos anteriores quedan guardados.</p>
+    <button class="btn-home" onclick="goHome()" style="width:100%;margin-bottom:10px;">Volver al inicio</button>
+  </div>
+</div>
+
+<!-- RESULTADOS -->
+<div id="screen-results" class="screen">
+  <div class="results">
+    <div class="score-circle">
+      <div class="score-num" id="res-pct">0%</div>
+      <div class="score-label" id="res-frac">0/8</div>
+    </div>
+    <div class="result-name" id="res-name"></div>
+    <div class="result-sub" id="res-sub"></div>
+    <div class="result-time" id="res-time"></div>
+    <div id="sync-status" class="sync-status" style="display:none"></div>
+    <h3 style="font-size:14px;margin-bottom:10px;">Revisión de respuestas</h3>
+    <div class="review-list" id="review-list"></div>
+    <div class="result-btns">
+      <button class="btn-retry" onclick="retryQuiz()">🔄 Reintentar</button>
+      <button class="btn-home" onclick="goHome()">🏠 Inicio</button>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL FORMADORA -->
+<div id="screen-panel" class="screen">
+  <div class="panel">
+    <div class="panel-header">
+      <h2>📊 Panel de formadora</h2>
+      <button class="btn-retry" onclick="goHome()" style="width:auto;padding:9px 16px;font-size:13px;">← Salir</button>
+    </div>
+    <div class="panel-tabs">
+      <div class="panel-tab active" onclick="switchTab('tab-results')">Resultados en vivo</div>
+      <div class="panel-tab" onclick="switchTab('tab-stats')">Estadísticas</div>
+      <div class="panel-tab" onclick="switchTab('tab-questions')">Editar preguntas</div>
+    </div>
+
+    <!-- TAB: RESULTADOS -->
+    <div id="tab-results" class="panel-section active">
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+        <button class="panel-refresh" onclick="loadResults()">🔄 Actualizar</button>
+        <select id="filter-module" style="padding:8px 12px;border:1.5px solid #D4D4D4;border-radius:6px;font-size:13px;" onchange="loadResults()">
+          <option value="">Todos los módulos</option>
+          <option value="dia1">Quiz Día 1–2</option>
+          <option value="dia3">Quiz Día 3</option>
+          <option value="cert">Certificación</option>
+        </select>
+        <span id="last-updated" style="font-size:12px;color:#A0A0A0;margin-left:auto;"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Nombre</th><th>Correo</th><th>Módulo</th><th>Puntaje</th><th>Estado</th><th>Tiempo</th><th>⚠️ Pestañas</th><th>Fecha</th>
+          </tr></thead>
+          <tbody id="results-tbody"><tr><td colspan="5" style="text-align:center;color:#A0A0A0;padding:24px;">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+      <p style="font-size:12px;color:#A0A0A0;">Los resultados se cargan desde Google Sheets. Si la tabla no carga, <a href="https://docs.google.com/spreadsheets/d/1q1DABgHp2XCm_1Y_QJYwl7ysJF6yyoft200Gb7BDiDQ" target="_blank" style="color:#1a73e8;font-weight:bold;">ábrela aquí directamente →</a></p>
+    </div>
+
+    <!-- TAB: ESTADÍSTICAS -->
+    <div id="tab-stats" class="panel-section">
+      <div class="stat-cards" id="stat-cards">
+        <div class="stat-card"><div class="sv" id="st-total">—</div><div class="sl">Intentos totales</div></div>
+        <div class="stat-card"><div class="sv" id="st-avg">—</div><div class="sl">Promedio general</div></div>
+        <div class="stat-card"><div class="sv" id="st-pass">—</div><div class="sl">≥ 70% (aprobados)</div></div>
+        <div class="stat-card"><div class="sv" id="st-best">—</div><div class="sl">Mejor puntaje</div></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Analista</th><th>Quiz D1-2</th><th>Quiz D3</th><th>Certificación</th><th>Estado</th></tr></thead>
+          <tbody id="stats-tbody"><tr><td colspan="5" style="text-align:center;color:#A0A0A0;padding:24px;">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+      <button class="panel-refresh" onclick="loadResults()">🔄 Actualizar estadísticas</button>
+    </div>
+
+    <!-- TAB: EDITAR PREGUNTAS -->
+    <div id="tab-questions" class="panel-section">
+      <div class="module-selector">
+        <button class="ms-btn active" onclick="switchQModule('dia1', this)">Quiz Día 1–2</button>
+        <button class="ms-btn" onclick="switchQModule('dia3', this)">Quiz Día 3</button>
+        <button class="ms-btn" onclick="switchQModule('cert', this)">Certificación</button>
+      </div>
+      <div class="sheet-sync-row">
+        <input type="text" id="sheet-url-input" placeholder="URL de Google Sheet con preguntas (opcional)" value="">
+        <button class="btn-sync-sheet" onclick="syncFromSheet()">📥 Importar desde Sheet</button>
+      </div>
+      <p class="sync-note">💡 La Sheet debe tener columnas: <strong>modulo · texto · opcionA · opcionB · opcionC · opcionD · correcta (0-3) · explicacion · nivel</strong><br>
+      Los cambios que guardes aquí se aplican a todos los analistas inmediatamente.</p>
+      <br>
+      <div class="q-editor-list" id="q-editor-list"></div>
+      <button class="btn-save-questions" onclick="saveQuestions()">💾 Guardar preguntas</button>
+      <div class="save-msg" id="save-msg">✅ Preguntas guardadas correctamente.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOGIN FORMADORA -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal">
+    <h2>🔐 Acceso formadora</h2>
+    <p>Ingresa la clave para acceder al panel de administración.</p>
+    <input type="password" id="modal-pwd" placeholder="Contraseña" onkeydown="if(event.key==='Enter')checkLogin()">
+    <div class="modal-err" id="modal-err">Clave incorrecta. Intenta de nuevo.</div>
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="closeLoginModal()">Cancelar</button>
+      <button class="btn-modal-enter" onclick="checkLogin()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// CONFIGURACIÓN
+// ════════════════════════════════════════════════════════════
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwiUS26tcJZ4CBmDMDJGnwSonm2ZplWhB2QiQf1LEkHJumyIroulxPHs0xh6CHEiLU/exec';
+const FORMADORA_PWD = 'somos';
+
+const MODULOS = [
+  { id:'dia1', label:'Quiz Día 1 – 2', desc:'7 preguntas · Identidad · Herramientas · Planes · Protección de Datos', icon:'📘', color:'color-blue', timerMin:10, preguntas:'dia1' },
+  { id:'dia3', label:'Quiz Día 3', desc:'8 preguntas · Procesos SAC · Facturación · Suspensión · Traslados', icon:'📙', color:'color-yellow', timerMin:10, preguntas:'dia3' },
+  { id:'cert', label:'Certificación SAC', desc:'25 preguntas · Todos los temas · 60 minutos', icon:'🏆', color:'color-green', timerMin:60, preguntas:'cert' },
+];
+
+// ════════════════════════════════════════════════════════════
+// BANCO DE PREGUNTAS (editable desde panel)
+// ════════════════════════════════════════════════════════════
+let PREGUNTAS = {
+
+  // ── QUIZ DÍAS 1-2 — 7 preguntas exactas del Excel ──
+  dia1: [
+    {tipo:'seleccion',texto:'¿Cuál es el precio del plan Essential 900 MB para un cliente en estrato 3?',opciones:["$75.000/mes con IVA incluido", "$63.000/mes con IVA incluido", "$63.000/mes sin IVA", "$60.000/mes con IVA incluido"],correcta:1,explicacion:'El Essential 900 MB (FO 2.5) para estratos 1, 2 y 3 cuesta $63.000/mes con IVA incluido. El valor de $75.000 corresponde a estratos 4, 5 y 6. El precio ya incluye IVA en ambos casos.'},
+    {tipo:'seleccion',texto:'¿Cuál es la función principal de Artemis en la operación del SAC?',opciones:["Es el CRM y sistema de facturación propio de Somos — aquí se gestionan los perfiles, estados de servicio, historial de pagos y trámites", "Es la plataforma donde llegan los chats de WhatsApp", "Es el CRM de Wompi propio de Somos", "Es la pasarela de pago principal donde se verifican los pagos de los clientes"],correcta:0,explicacion:'Artemis es el CRM y sistema de facturación propio de Somos. Selene es la plataforma de chats. ISP/Grafana es la herramienta técnica de red. Wompi es la pasarela de pago.'},
+    {tipo:'seleccion',texto:'¿Cuáles son los 3 datos obligatorios que el analista debe validar en TODOS los casos que requieren validación de identidad?',opciones:["Nombre completo, número de documento y correo electrónico registrado", "Número de documento, dirección del servicio y número de teléfono de contacto", "Nombre completo del titular, número de documento registrado en Artemis y número de teléfono de contacto", "Nombre completo, número de documento y número de cuenta del servicio"],correcta:2,explicacion:'Los 3 datos obligatorios son: nombre completo del titular, documento de identidad registrado en Artemis y teléfono de contacto.'},
+    {tipo:'seleccion',texto:'¿Cuál de estas situaciones NO requiere validación de identidad del titular?',opciones:["El cliente solicita un certificado de servicio para un trámite bancario", "El cliente quiere hacer un cambio de titular del servicio", "El cliente quiere confirmar el nombre de red y contraseña de su WiFi", "El cliente reporta una falla masiva de internet en su edificio"],correcta:3,explicacion:'Cuando hay fallas masivas o el usuario reporta fallas del servicio, NO se requiere validación. Las demás opciones sí requieren validación completa.'},
+    {tipo:'seleccion',texto:'¿Qué diferencia principal existe entre el Radioenlace y la Fibra Óptica FTTH de Somos?',opciones:["El radioenlace es una tecnología legacy que puede estar en algunos edificios antiguos. La fibra FTTH es el estándar actual con velocidades simétricas hasta 2 Gbps y menor latencia", "La fibra óptica FTTH reemplazó completamente al radioenlace que ya no está activo en ningún edificio", "Ambas tecnologías ofrecen velocidades simétricas — el radioenlace opera en Bogotá y la fibra en Medellín", "El radioenlace ofrece mayor velocidad que la fibra pero menor estabilidad en edificios de más de 10 pisos"],correcta:0,explicacion:'El radioenlace es tecnología anterior y puede estar en algunos edificios antiguos. La fibra FTTH es el estándar actual de Somos con velocidades simétricas hasta 2 Gbps.'},
+    {tipo:'seleccion',texto:'Durante una validación de identidad el cliente dice: "Dime cuál es el correo que tengo registrado." ¿Qué debe responder el analista?',opciones:["Decirle el correo completo — si el cliente lo está pidiendo para verificar, eso es parte del proceso de validación", "Decirle que no puede compartir ninguna parte del correo por política de protección de datos", "Enviarle un mensaje de prueba al correo registrado para que él confirme si lo recibió", "Mostrarle solo la parte inicial con el resto oculto: andrea****@gmail.com — y pedirle que confirme si ese es el suyo"],correcta:3,explicacion:'El protocolo es mostrar solo parte del dato con el resto oculto: andrea****@gmail.com. Nunca se revela el dato completo. La opción A viola protección de datos. La opción C es incorrecta porque sí se puede mostrar parcialmente.'},
+    {tipo:'seleccion',texto:'¿Cuál de estas afirmaciones sobre los planes vigentes de Somos es completamente correcta?',opciones:["El plan PRO 2.0 tiene soporte 24/7, velocidades hasta 1 Gbps e incluye el equipo Orb. El Essential tiene soporte 24/7 y hasta 2 TV box gratis", "Ambos planes tienen el mismo soporte 24/7. El PRO 2.0 hasta 2 Gbps, Orb y 1 TV box gratis. El Essential hasta 2 routers", "El plan PRO 2.0 tiene soporte 24/7, velocidades hasta 2 Gbps e incluye el equipo Orb. El Essential tiene soporte 24/7 y hasta 2 routers", "El plan PRO 2.0 tiene soporte 24/7, velocidades hasta 2 Gbps e incluye el equipo Orb. El Essential tiene soporte 24/7 e incluye también la Orb"],correcta:2,explicacion:'El PRO 2.0 incluye soporte 24/7, hasta 2 Gbps, routers ilimitados y equipo Orb. El Essential tiene soporte 24/7, hasta 900 Mbps y máximo 2 routers. El precio varía según el estrato del EDIFICIO.'},
+  ],
+
+  // ── QUIZ DÍA 3 — 8 preguntas exactas del Excel ──
+  dia3: [
+    {tipo:'seleccion',texto:'Un cliente solicita una suspensión temporal por 60 días. Al revisar la cuenta observas que está en periodo de prueba y nunca ha recibido una factura. ¿Qué debes hacer?',opciones:["Realizar la suspensión porque cumple con el mínimo de 30 días.", "Realizar la suspensión porque la factura se congelará automáticamente.", "Informar que no aplica porque el servicio debe ser facturable y no estar en periodo de prueba", "Informar que no aplica porque el servicio está en periodo de prueba"],correcta:2,explicacion:'La suspensión temporal solo aplica para servicios facturables y no aplica para usuarios en periodo de prueba.'},
+    {tipo:'seleccion',texto:'¿Cuál es la diferencia entre la facturación automática y la facturación manual en Somos?',opciones:["La automática genera el link de pago por sistema y lo envía al cliente. La manual es para clientes especiales como B2B VIP: Finanzas genera la factura electrónica y el cliente paga a una cuenta bancaria", "La automática es para clientes PRO y la manual es para clientes Essential", "Ambas son iguales — la diferencia es solo el canal por el que llega al cliente (correo vs WhatsApp)", "La automática aplica cuando el cliente tiene domiciliación bancaria y la manual cuando paga en efectivo"],correcta:0,explicacion:'La facturación automática genera el link de pago por sistema y lo envía 10 días antes del vencimiento. La facturación manual es para clientes especiales como B2B VIP: Finanzas genera la factura electrónica y el cliente paga directamente a una cuenta bancaria.'},
+    {tipo:'seleccion',texto:'¿Qué significa que un servicio esté en estado "Congelado" en Artemis?',opciones:["El servicio fue cancelado definitivamente por el cliente y no se puede reconectar sin nueva instalación", "El servicio está cortado por falta de pago y se reactiva al verificar el pago en el sistema", "El cliente solicitó voluntariamente una suspensión temporal del servicio con fecha de reactivación definida", "El servicio está en proceso de traslado a otra dirección y sin navegación en el origen"],correcta:2,explicacion:'Congelado = suspensión temporal voluntaria solicitada por el cliente, con fecha de reactivación definida. Completamente diferente a Suspendido (corte por mora) y a Retirado (cancelación definitiva).'},
+    {tipo:'seleccion',texto:'¿Cuál es la razón principal por la que puede aparecer un valor prorrateado al contratar un TV Box adicional?',opciones:["El sistema cobra únicamente los días transcurridos hasta completar el ciclo de facturación vigente.", "El sistema aplica un ajuste temporal mientras se crea una nueva fecha de corte para el TV Box.", "El sistema cobra el primer mes por adelantado y luego regulariza el valor en la siguiente factura.", "El sistema busca alinear el nuevo servicio con la fecha de corte existente de la cuenta."],correcta:3,explicacion:'El prorrateo se genera cuando un servicio adicional se activa en una fecha diferente al inicio del ciclo de facturación. El sistema realiza un ajuste para que el nuevo servicio quede alineado con la fecha de corte existente.'},
+    {tipo:'seleccion',texto:'Un cliente con plan Essential normalmente paga $75.000 al mes. Este mes recibió una factura por un valor superior al habitual. ¿Cuál es la explicación más probable?',opciones:["Se está cobrando el valor mensual del TV Box adicional junto con el valor proporcional de los días utilizados desde su activación hasta la siguiente fecha de corte", "El sistema aplicó automáticamente un aumento al plan Essential.", "El cliente fue migrado a un plan superior.", "Existe un error de facturación porque los servicios adicionales solo se cobran a partir del siguiente mes."],correcta:0,explicacion:'Cuando un cliente activa un TV Box adicional en una fecha diferente al inicio de su ciclo, la siguiente factura incluye el valor mensual recurrente del TV Box más el prorrateo de los días desde la activación hasta la fecha de corte. No es un error de cobro.'},
+    {tipo:'seleccion',texto:'CASO: Laura solicita trasladar su servicio. Existe cobertura en la nueva dirección, el cliente acepta el nuevo plan. Sin embargo, la suscripción tiene saldo pendiente y está en estado Suspendido. ¿Qué debe hacer el analista?',opciones:["Crear el traslado porque la nueva dirección tiene cobertura.", "Agendar el traslado y solicitar el pago posteriormente.", "Informar que el traslado no puede gestionarse porque únicamente se trasladan suscripciones en estado Activo.", "Informar al cliente que el traslado no puede gestionarse mientras la suscripción esté en estado Suspendido. Para realizarlo, primero debe normalizar su estado de cuenta para que quede Activa."],correcta:3,explicacion:'Uno de los requisitos obligatorios para gestionar un traslado es que la suscripción se encuentre en estado Activo. El analista debe validar el estado antes de agendar o crear el traslado.'},
+    {tipo:'seleccion',texto:'CASO: María solicita suspender temporalmente su servicio durante 30 días. La suscripción está ACTIVA, ya ha pagado varias facturas, utilizó una suspensión temporal por 60 días hace 4 meses, y desea que empiece hoy mismo. ¿Cuál es la acción correcta?',opciones:["Crear la suspensión por 30 días porque cumple el tiempo mínimo y la cuenta está activa.", "Informar que la solicitud no procede porque ya utilizó este beneficio durante el año actual", "Escalar a backoffice para la aprobación", "Crear la suspensión y aclarar que iniciará en la próxima fecha de corte."],correcta:1,explicacion:'La suspensión temporal solo puede utilizarse una vez por año. Al haber usado una suspensión previamente durante el mismo año, no es posible generar una nueva solicitud.'},
+    {tipo:'seleccion',texto:'CASO: Ricardo Vargas escribe por WhatsApp. Compró el apartamento 804 hace dos meses y el servicio sigue a nombre de Felipe Torres. Ricardo quiere que quede a su nombre pero Felipe ya no vive allí y no tiene contacto con él. ¿Cuál es la respuesta correcta del analista?',opciones:["Actualizar el nombre directamente en Artemis con los datos de Ricardo ya que hay un cambio de propiedad", "Cancelar el servicio de Felipe Torres e iniciar una nueva instalación a nombre de Ricardo", "Intentar contactar a Felipe Torres con los datos registrados en el sistema para solicitar su autorización — sin esa autorización el trámite no puede completarse", "Pedirle a Ricardo que presente la escritura de compraventa como sustituto de la autorización del titular actual"],correcta:2,explicacion:'El cambio de titularidad requiere la participación y autorización del titular actual. El primer paso es intentar contactar a Felipe Torres con los datos que Somos tiene registrados. Sin esa autorización el proceso no puede completarse — ni con escrituras ni con ningún otro documento sustituto.'},
+  ],
+
+  // ── CERTIFICACIÓN SAC — 25 preguntas mixtas (selección + multi + V/F + correlación + sustentación) ──
+  cert: [
+    {tipo:'seleccion',texto:'¿Cuál es el precio del plan Essential 900 MB para un cliente en estrato 5?',opciones:["$63.000/mes con IVA incluido", "$60.000/mes con IVA incluido", "$75.000/mes con IVA incluido", "$80.000/mes con IVA incluido"],correcta:2,explicacion:'El Essential 900 MB para estratos 4, 5 y 6 cuesta $75.000/mes con IVA incluido. El precio de $63.000 corresponde a estratos 1, 2 y 3.'},
+    {tipo:'seleccion',texto:'¿Cuáles son los 3 datos obligatorios para validar identidad en Somos?',opciones:["Nombre completo del titular, número de documento registrado en Artemis y número de teléfono de contacto", "Nombre completo, número de documento y correo electrónico", "Número de documento, dirección del servicio y teléfono", "Nombre completo, número de documento y número de cuenta"],correcta:0,explicacion:'Los 3 datos obligatorios son: nombre completo del titular, documento registrado en Artemis y teléfono de contacto.'},
+    {tipo:'seleccion',texto:'¿Cuál situación NO requiere validación de identidad del titular?',opciones:["El cliente quiere hacer un cambio de titular del servicio", "El cliente solicita un certificado de servicio para un trámite bancario", "El cliente quiere confirmar la contraseña de su WiFi", "El cliente reporta una falla masiva de internet en su edificio"],correcta:3,explicacion:'Cuando hay fallas masivas o el usuario reporta fallas del servicio, NO se requiere validación de identidad.'},
+    {tipo:'seleccion',texto:'¿Qué es My Somos y con qué datos accede el cliente?',opciones:["Es la app de Somos para técnicos — acceden con su cédula de empleado", "Es el portal de autogestión del cliente en my.somosinternet.com — el cliente accede con el número de documento del titular", "Es el sistema interno del SAC donde los analistas gestionan tickets", "Es la plataforma de pagos donde el cliente puede ver sus facturas con su correo electrónico"],correcta:1,explicacion:'My Somos es el portal de autogestión del cliente disponible en my.somosinternet.com. El cliente accede con el número de documento del titular y puede ver facturas, historial de pagos, agendar visitas y solicitar su enlace de pago.'},
+    {tipo:'seleccion',texto:'¿Qué es la tokenización en el contexto de My Somos?',opciones:["Es el proceso de generar una factura electrónica para clientes B2B VIP", "El cliente puede guardar su método de pago de forma segura (token) en My Somos para pagos futuros automáticos", "Es un código de verificación que se envía por SMS para confirmar la identidad del cliente", "Es la forma en que el sistema codifica el número de cuenta del cliente en Artemis"],correcta:1,explicacion:'La tokenización permite al cliente guardar su método de pago de forma segura en My Somos. Este token se usa para pagos futuros automáticos sin necesidad de ingresar los datos de la tarjeta nuevamente.'},
+    {tipo:'seleccion',texto:'¿Cuál de estas afirmaciones sobre los planes vigentes de Somos es completamente correcta?',opciones:["El PRO 2.0 tiene soporte 24/7, hasta 2 Gbps e incluye el equipo Orb. El Essential tiene soporte 24/7 y hasta 2 routers", "El PRO 2.0 tiene soporte 24/7, hasta 1 Gbps e incluye el equipo Orb. El Essential tiene soporte 24/7 y hasta 2 TV box", "Ambos tienen igual soporte. El PRO 2.0 hasta 2 Gbps, Orb y 1 TV box. El Essential hasta 2 routers", "El PRO 2.0 tiene soporte 24/7, hasta 2 Gbps e incluye la Orb. El Essential también incluye la Orb"],correcta:0,explicacion:'El PRO 2.0: soporte 24/7, hasta 2 Gbps, routers ilimitados y equipo Orb. El Essential: soporte 24/7, hasta 900 Mbps, máximo 2 routers. El precio varía por estrato del EDIFICIO.'},
+    {tipo:'seleccion',texto:'CASO: Laura solicita traslado de servicio. Hay cobertura en la nueva dirección pero la suscripción está Suspendida. ¿Qué hace el analista?',opciones:["Crear el traslado porque hay cobertura en la nueva dirección", "Agendar el traslado y solicitar el pago después de la visita técnica", "Crear el traslado con nota interna para que cobranzas gestione la deuda", "Informar que primero debe normalizar el estado de cuenta para que la suscripción quede Activa, luego se gestiona el traslado"],correcta:3,explicacion:'El traslado requiere suscripción en estado Activo. La deuda pendiente y el estado Suspendido impiden el trámite hasta que el cliente normalice su cuenta.'},
+    {tipo:'seleccion',texto:'CASO: Ricardo compró el apartamento 804. El servicio sigue a nombre de Felipe Torres, quien ya no vive allí y no tiene contacto con él. ¿Qué hace el analista?',opciones:["Cancelar el servicio de Felipe e iniciar instalación nueva a nombre de Ricardo", "Actualizar el nombre en Artemis con los datos de Ricardo por cambio de propiedad", "Intentar contactar a Felipe Torres con los datos de Artemis — sin su autorización el trámite no puede completarse", "Pedirle la escritura de compraventa como sustituto de la autorización del titular"],correcta:2,explicacion:'El cambio de titularidad requiere autorización del titular actual. Se contacta a Felipe con los datos de Somos. Sin esa autorización no puede completarse — ni con escrituras ni con ningún otro documento.'},
+    {tipo:'multi',texto:'¿Cuáles de las siguientes acciones puede realizar un cliente desde My Somos? (Selecciona TODAS las correctas)',opciones:["Ver y descargar su factura e historial de pagos", "Guardar su método de pago mediante tokenización para pagos automáticos futuros", "Modificar el plan de internet desde el portal sin contactar al SAC", "Agendar o modificar visitas técnicas directamente", "Solicitar su enlace de pago ingresando su número de documento"],correctas:[0, 1, 3, 4],explicacion:'Desde My Somos el cliente puede: ver/descargar factura e historial, tokenizar su método de pago, agendar visitas técnicas y solicitar enlace de pago. No puede modificar el plan directamente — eso requiere contactar al SAC.'},
+    {tipo:'multi',texto:'¿Cuáles de estos estados de suscripción en Artemis impiden gestionar un traslado de servicio? (Selecciona TODOS los que aplican)',opciones:["Activo", "Suspendido por mora", "Congelado (suspensión temporal)", "Retirado (cancelación definitiva)", "En proceso de instalación"],correctas:[1, 2, 3, 4],explicacion:'Solo las suscripciones en estado Activo pueden trasladarse. Suspendido, Congelado, Retirado y en proceso de instalación son estados que impiden el traslado.'},
+    {tipo:'multi',texto:'¿Cuáles de estas afirmaciones sobre la suspensión temporal son CORRECTAS? (Selecciona TODAS)',opciones:["La suspensión puede solicitarse máximo una vez por año", "La suspensión siempre inicia en la próxima fecha de corte, no el día de la solicitud", "La suspensión puede solicitarse por un mínimo de 15 días", "El servicio debe ser facturable — no aplica para clientes en periodo de prueba", "La factura se congela durante el periodo de suspensión"],correctas:[0, 1, 3, 4],explicacion:'Correcto: una vez al año, inicia en la próxima fecha de corte, requiere ser facturable y congela la factura. Incorrecto: el mínimo es 30 días, no 15.'},
+    {tipo:'multi',texto:'¿Cuáles son los diferenciadores clave de Somos frente a operadores tradicionales como Claro o Tigo? (Selecciona TODOS)',opciones:["Sin cláusula de permanencia — el cliente puede cancelar en cualquier momento", "30 días de prueba gratuita al contratar el servicio", "Velocidades simétricas garantizadas — misma velocidad de subida y bajada", "Infraestructura de red 100% propia (fibra óptica FTTH)", "Precios siempre más bajos que la competencia en todos los estratos"],correctas:[0, 1, 2, 3],explicacion:'Los diferenciadores son: sin permanencia, 30 días gratis, velocidades simétricas e infraestructura propia. Somos no siempre tiene el precio más bajo — compite por calidad y experiencia.'},
+    {tipo:'vf',texto:'La suspensión temporal del servicio puede solicitarse varias veces al año, siempre que el servicio esté activo y sea facturable.',esVerdadero:false,explicacion:'FALSO. La suspensión temporal solo puede utilizarse UNA VEZ por año y no es acumulable si no se usa. Esto aplica independientemente del estado del servicio o del plan contratado.'},
+    {tipo:'vf',texto:'La tokenización en My Somos permite al cliente guardar su método de pago de forma segura para usarlo en pagos futuros automáticos sin necesidad de ingresar los datos nuevamente.',esVerdadero:true,explicacion:'VERDADERO. La tokenización es exactamente ese proceso: el cliente guarda su método de pago de forma segura (token) en My Somos para facilitar pagos automáticos futuros.'},
+    {tipo:'vf',texto:'El estado "Congelado" en Artemis y el estado "Suspendido" son equivalentes — en ambos el cliente no tiene servicio de internet y el proceso de reactivación es el mismo.',esVerdadero:false,explicacion:'FALSO. Son completamente distintos. Congelado = suspensión temporal VOLUNTARIA con fecha de reactivación automática definida por el cliente. Suspendido = corte por MORA (falta de pago), se reactiva verificando y aplicando el pago. Los procesos son totalmente diferentes.'},
+    {tipo:'correlacion',texto:'Relaciona cada herramienta de Somos con su función principal:',pares:[{"termino": "Artemis", "definicion": "CRM y sistema de facturación propio de Somos — gestiona perfiles, estados de servicio, historial de pagos y trámites"}, {"termino": "Selene", "definicion": "Plataforma de atención digital — centraliza las conversaciones de los clientes por WhatsApp"}, {"termino": "Wompi", "definicion": "Pasarela de pago principal — aquí se verifican y localizan los pagos de los clientes en tiempo real"}, {"termino": "Voxiplant", "definicion": "Plataforma de llamadas — canal de voz para la atención telefónica"}],explicacion:'Artemis = CRM y facturación. Selene = chats/WhatsApp. Wompi = pasarela de pago. Voxiplant = llamadas de voz.'},
+    {tipo:'correlacion',texto:'Relaciona cada estado de suscripción en Artemis con su significado correcto:',pares:[{"termino": "Activo", "definicion": "El servicio funciona con normalidad y el cliente tiene internet"}, {"termino": "Suspendido", "definicion": "Corte por mora — el servicio se corta por falta de pago; se reactiva verificando el pago"}, {"termino": "Congelado", "definicion": "Suspensión temporal voluntaria solicitada por el cliente, con fecha de reactivación automática definida"}, {"termino": "Retirado", "definicion": "Cancelación definitiva del servicio — no puede reactivarse sin un nuevo proceso de instalación"}],explicacion:'Activo = funciona normal. Suspendido = corte por mora. Congelado = suspensión temporal voluntaria. Retirado = cancelación definitiva.'},
+    {tipo:'correlacion',texto:'Relaciona cada concepto de My Somos con lo que permite hacer al cliente:',pares:[{"termino": "Tokenización", "definicion": "Guardar el método de pago de forma segura para pagos futuros automáticos"}, {"termino": "Historial de pagos", "definicion": "Consultar y descargar las facturas y el registro de pagos anteriores"}, {"termino": "Agendamiento", "definicion": "Programar o modificar visitas técnicas directamente desde el portal"}, {"termino": "Enlace de pago", "definicion": "Solicitar el link de pago ingresando el número de documento del titular"}],explicacion:'Tokenización = guardar pago seguro. Historial = ver facturas/pagos. Agendamiento = gestionar visitas técnicas. Enlace de pago = obtener link con documento.'},
+    {tipo:'correlacion',texto:'Relaciona cada área del SAC de Somos con su función principal:',pares:[{"termino": "PQR", "definicion": "Primera línea de contacto — facturación, trámites, traslados, cambios de nombre y plan, certificados"}, {"termino": "Retención", "definicion": "Atiende clientes que quieren cancelar — identifica la causa raíz y aplica protocolo de negociación escalonada"}, {"termino": "Soporte N1", "definicion": "Diagnóstico técnico inicial de conectividad — resuelve en el primer contacto sin visita técnica"}, {"termino": "Cobranzas", "definicion": "Gestión de cartera — atiende casos de mora, acuerdos de pago y clientes con deuda vencida"}],explicacion:'PQR = trámites y primera línea. Retención = clientes que quieren cancelar. Soporte N1 = diagnóstico técnico remoto. Cobranzas = gestión de mora y deuda.'},
+    {tipo:'sustentacion',texto:'SUSTENTACIÓN: Un analista recibe la llamada de alguien que dice ser el hermano del titular y pide urgente el estado de cuenta.\n\n¿Cuál es la acción correcta y por qué aplica incluso en urgencias?',opciones:["Aplicar el protocolo completo de validación de identidad — la urgencia y el parentesco no son excepciones. Omitirlo tiene consecuencias legales para el analista y la empresa", "Atenderlo sin validación porque es familiar directo y la urgencia lo justifica", "Pedirle solo el número de cuenta para agilizar sin comprometer datos sensibles", "Transferirlo a cobranzas para que ellos decidan si atienden sin validación"],correcta:0,explicacion:'El protocolo de validación aplica SIEMPRE, sin excepción. La urgencia, el parentesco o cualquier circunstancia no lo justifican. El incumplimiento tiene consecuencias legales bajo la Ley 1581 de 2012 de Protección de Datos, tanto para el analista como para Somos.'},
+    {tipo:'sustentacion',texto:'SUSTENTACIÓN: Un cliente con plan Essential (estrato 4, $75.000/mes) activó un TV Box adicional ($10.000/mes) el día 10 de julio. Su fecha de corte es el día 30.\n\nExplica qué aparecerá en su próxima factura y por qué.',opciones:["Solo $10.000 adicionales — el mes completo del TV Box desde la activación", "$75.000 del plan + $10.000 del TV Box = $85.000 cobro inmediato", "$75.000 del plan + $6.667 de prorrateo del TV Box (20 días × $333/día) + $10.000 del TV Box del siguiente periodo. La factura es más alta por la alineación de ciclos", "No habrá cambio — los servicios adicionales se cobran a partir del siguiente ciclo completo"],correcta:2,explicacion:'La factura incluirá: (1) Prorrateo TV Box: $10.000 ÷ 30 × 20 días = $6.667. (2) Mensualidad siguiente del TV Box: $10.000. (3) Plan Essential: $75.000. Total ≈ $91.667. Es normal, no es un error.'},
+    {tipo:'sustentacion',texto:'SUSTENTACIÓN: Una clienta llama furiosa porque su servicio está Suspendido y dice que pagó hace tres días. Wompi no muestra ningún pago reciente.\n\n¿Cuál es el paso a paso correcto y por qué NO debe reconectar sin verificar?',opciones:["Reconectar inmediatamente para evitar conflicto, luego verificar", "Pedirle el comprobante por WhatsApp y reconectar si lo envía", "Verificar en Wompi → si no aparece, solicitar al experto de turno que aplique el pago manualmente → solo cuando el pago esté en Artemis se confirma la reconexión. No se reconecta sin ver el pago en el sistema", "Decirle que espere 24 horas porque los pagos tardan en reflejarse"],correcta:2,explicacion:'Proceso correcto: (1) Verificar en Wompi. (2) Si no aparece, solicitar al experto de turno que aplique el pago manualmente. (3) Solo cuando el pago esté en Artemis se confirma la reconexión. Reconectar sin verificar puede implicar dar servicio sin pago real, generando pérdida para Somos y problemas de auditoría.'},
+    {tipo:'sustentacion',texto:'SUSTENTACIÓN: ¿Por qué la suspensión temporal siempre inicia en la próxima fecha de corte y no el mismo día que el cliente la solicita?',opciones:["Porque el sistema necesita 24 horas para procesar la solicitud técnicamente", "Porque la factura ya está generada para el periodo actual y no puede modificarse retroactivamente", "Porque la suspensión se alinea con el ciclo de facturación para que el cliente no pague por días de servicio que no usará — la factura se congela desde la próxima fecha de corte, garantizando un cobro justo", "Porque el sistema solo procesa suspensiones una vez al mes en la fecha de corte"],correcta:2,explicacion:'La suspensión inicia en la próxima fecha de corte para garantizar la alineación con el ciclo de facturación. La factura se congela desde ese momento para que el cliente no pague por días de servicio que no usará.'},
+    {tipo:'sustentacion',texto:'SUSTENTACIÓN: ¿Cuál es la diferencia entre los estados Suspendido, Congelado y Retirado en Artemis, y por qué es crítico que el analista los distinga?',opciones:["Son sinónimos — los tres significan que el cliente no tiene internet activo", "Congelado = sin pago; Suspendido = suspensión voluntaria; Retirado = traslado en proceso", "Suspendido = sin servicio por mora; Congelado = suspensión temporal voluntaria con fecha de reactivación automática; Retirado = cancelación definitiva. Confundirlos lleva a errores graves", "Suspendido y Congelado son iguales; Retirado es el único diferente por implicar cancelación"],correcta:2,explicacion:'Suspendido = corte por mora, se reactiva verificando el pago. Congelado = suspensión temporal voluntaria con fecha de reactivación automática definida. Retirado = cancelación definitiva. Confundirlos puede llevar a reconectar sin verificar pago real o informar que el cliente puede reactivar cuando el contrato ya fue cancelado.'},
+    {tipo:'sustentacion',texto:'SUSTENTACIÓN: Un cliente llama porque no entiende por qué My Somos le pide guardar su tarjeta con "tokenización". Tiene miedo de que le roben los datos.\n\nExplica qué es la tokenización y por qué es seguro.',opciones:["Decirle que la tokenización guarda el número completo de la tarjeta en los servidores de Somos para mayor comodidad", "La tokenización reemplaza los datos reales de la tarjeta por un token seguro (código único) que no permite reconstruir la información original. Los datos reales nunca quedan almacenados en Somos. Es el mismo estándar que usan bancos y plataformas como Netflix o Rappi", "Decirle que es optativo y que si no quiere tokenizar puede pagar manualmente cada mes por WhatsApp", "Explicarle que la tokenización es solo para clientes PRO 2.0 con facturación automática"],correcta:1,explicacion:'La tokenización es un proceso de seguridad que reemplaza los datos reales de la tarjeta por un código único (token). Este token es lo que se guarda, no los datos reales. Así el cliente puede hacer pagos futuros automáticos sin riesgo, con el mismo estándar de seguridad de bancos y grandes plataformas digitales.'},
+  ],
+};
+
+// ════════════════════════════════════════════════════════════
+// ESTADO
+// ════════════════════════════════════════════════════════════
+let userName = '';
+let currentModule = null;
+let currentQ = 0;
+let score = 0;
+let userAnswers = [];
+let timerInterval = null;
+let timerSeconds = 0;
+let timerElapsed = 0;
+let currentQEditor = 'dia1';
+let shuffledIndices = {};   // orden aleatorio por módulo
+
+function getQ(moduleId, idx) {
+  const indices = shuffledIndices[moduleId];
+  if (!indices) return PREGUNTAS[moduleId][idx];
+  return PREGUNTAS[moduleId][indices[idx]];
+}
+
+// Progreso guardado en localStorage
+function getProgress(nombre) {
+  try { return JSON.parse(localStorage.getItem('sac_progress_' + nombre)) || {}; } catch(e) { return {}; }
+}
+function saveProgress(nombre, data) {
+  try { localStorage.setItem('sac_progress_' + nombre, JSON.stringify(data)); } catch(e) {}
+}
+
+// ════════════════════════════════════════════════════════════
+// HOME
+// ════════════════════════════════════════════════════════════
+function onNombreInput() {
+  const v = document.getElementById('nombre-input').value.trim();
+  document.getElementById('btn-continuar').disabled = v.length < 3;
+}
+
+function confirmarNombre() {
+  userName = document.getElementById('nombre-input').value.trim();
+  document.getElementById('home-nombre').textContent = userName;
+  document.getElementById('modulos-wrap').style.display = 'block';
+  renderModulos();
+}
+
+function renderModulos() {
+  const prog = getProgress(userName);
+  const list = document.getElementById('modulos-list');
+  list.innerHTML = '';
+
+  MODULOS.forEach((m, idx) => {
+    // El módulo está desbloqueado si es el primero o si el anterior fue completado al menos 1 vez
+    const prevProg = idx === 0 ? null : prog[MODULOS[idx-1].id];
+    const prevDone = idx === 0 || (prevProg && prevProg.pct >= 85);
+    const mProg = prog[m.id];
+    const locked = !prevDone;
+    const pct = mProg ? mProg.pct : null;
+
+    const card = document.createElement('div');
+    card.className = 'modulo-card' + (locked ? ' locked' : '') + (mProg ? ' done' : '');
+    if (!locked) card.onclick = () => startModule(m.id);
+
+    let badgeHtml = '';
+    const prevForBadge = idx === 0 ? null : prog[MODULOS[idx-1].id];
+    const prevApproved = idx === 0 || (prevForBadge && prevForBadge.pct >= 85);
+    if (!prevApproved && idx > 0) badgeHtml = '<span class="modulo-badge locked-badge">🔒 Requiere 85% en módulo anterior</span>';
+    else if (locked) badgeHtml = '<span class="modulo-badge locked-badge">🔒 Bloqueado</span>';
+    else if (mProg && mProg.pct >= 85) badgeHtml = '<span class="modulo-badge">✅ Aprobado</span>';
+    else if (mProg && mProg.pct < 85) badgeHtml = '<span class="modulo-badge pending">⚠️ ' + mProg.pct + '% — Se requiere 85% para continuar</span>';
+    else badgeHtml = '<span class="modulo-badge pending">Pendiente</span>';
+
+    let rightHtml = '';
+    if (locked) rightHtml = '<div class="modulo-lock">🔒</div>';
+    else if (pct !== null) {
+      rightHtml = `<div class="modulo-pct">${pct}%</div>
+        <div class="modulo-bar-wrap"><div class="modulo-bar" style="width:${pct}%"></div></div>`;
+    } else {
+      rightHtml = '<div class="modulo-pct na">—</div>';
+    }
+
+    card.innerHTML = `
+      <div class="modulo-icon ${m.color}">${m.icon}</div>
+      <div class="modulo-info">
+        <h3>${m.label}</h3>
+        <p>${m.desc}</p>
+        ${badgeHtml}
+      </div>
+      <div class="modulo-right">${rightHtml}</div>`;
+    list.appendChild(card);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// QUIZ
+// ════════════════════════════════════════════════════════════
+function startModule(moduleId) {
+  if (!userName) return;
+  currentModule = moduleId;
+  currentQ = 0; score = 0; userAnswers = [];
+  const mod = MODULOS.find(m => m.id === moduleId);
+  timerSeconds = mod.timerMin * 60;
+  timerElapsed = 0;
+  // Aleatorizar orden de preguntas en cada intento
+  shuffledIndices[currentModule] = shuffle(PREGUNTAS[currentModule].map((_,i) => i));
+  showScreen('screen-quiz');
+  renderQuestion();
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timerElapsed++;
+    timerSeconds--;
+    updateTimerDisplay();
+    if (timerSeconds <= 0) {
+      clearInterval(timerInterval);
+      timeOut();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerSeconds / 60);
+  const s = timerSeconds % 60;
+  const box = document.getElementById('timer-box');
+  box.textContent = '⏱ ' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  box.className = 'timer-box' + (timerSeconds <= 60 ? ' warning' : '');
+}
+
+function timeOut() {
+  showScreen('screen-timeout');
+}
+
+// Estado extra para tipos especiales
+let multiSelected = [];
+let vfChoice = null;
+let matchState = {}; // {termIdx: defIdx}
+let matchSelectedTerm = null;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function renderQuestion() {
+  const pregs = PREGUNTAS[currentModule];
+  const q = getQ(currentModule, currentQ);
+  const total = pregs.length;
+  const pct = Math.round((currentQ / total) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = 'Pregunta ' + (currentQ+1) + ' de ' + total + ' · ✓ ' + score + ' correctas';
+
+  const tipoLabels = {seleccion:'🟢 Selección múltiple', multi:'🟡 Múltiple respuesta', vf:'🔵 Verdadero / Falso', correlacion:'🟠 Correlacionar', sustentacion:'🟣 Sustentación'};
+  document.getElementById('q-number').textContent = 'Pregunta ' + (currentQ+1) + ' · ' + (tipoLabels[q.tipo] || '🟢 Selección');
+  document.getElementById('q-text').textContent = q.texto;
+
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+
+  if (q.tipo === 'multi') renderMulti(q, container);
+  else if (q.tipo === 'vf') renderVF(q, container);
+  else if (q.tipo === 'correlacion') renderCorrelacion(q, container);
+  else renderSeleccion(q, container);
+}
+
+function renderSeleccion(q, container) {
+  ['A','B','C','D'].forEach((l,i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = '<span class="option-letter">' + l + '</span><span>' + q.opciones[i] + '</span>';
+    div.onclick = () => selectAnswer(i);
+    container.appendChild(div);
+  });
+}
+
+function renderMulti(q, container) {
+  multiSelected = [];
+  const hint = document.createElement('div');
+  hint.className = 'multi-hint';
+  hint.textContent = '☑️ Selecciona TODAS las respuestas correctas, luego haz clic en Confirmar.';
+  container.appendChild(hint);
+  q.opciones.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option-check';
+    div.id = 'mopt-' + i;
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.id = 'mcb-' + i;
+    cb.onchange = () => {
+      if (cb.checked) { multiSelected.push(i); div.classList.add('selected'); }
+      else { multiSelected = multiSelected.filter(x => x !== i); div.classList.remove('selected'); }
+      document.getElementById('btn-confirm-multi').disabled = multiSelected.length === 0;
+    };
+    const lbl = document.createElement('label');
+    lbl.htmlFor = 'mcb-' + i;
+    lbl.style.cursor = 'pointer';
+    lbl.style.flex = '1';
+    lbl.textContent = opt;
+    div.appendChild(cb);
+    div.appendChild(lbl);
+    container.appendChild(div);
+  });
+  const btn = document.createElement('button');
+  btn.className = 'btn-confirm-multi';
+  btn.id = 'btn-confirm-multi';
+  btn.textContent = 'Confirmar respuesta';
+  btn.disabled = true;
+  btn.onclick = confirmMulti;
+  container.appendChild(btn);
+}
+
+function confirmMulti() {
+  const q = getQ(currentModule, currentQ);
+  const correctSet = new Set(q.correctas);
+  const selectedSet = new Set(multiSelected);
+  const isCorrect = correctSet.size === selectedSet.size && [...correctSet].every(x => selectedSet.has(x));
+  document.querySelectorAll('.option-check').forEach((div, i) => {
+    div.classList.add('disabled');
+    const cb = div.querySelector('input');
+    if (cb) cb.disabled = true;
+    if (isCorrect) {
+      // Acertó todo: mostrar verde
+      if (correctSet.has(i)) div.classList.add('correct');
+    } else {
+      // Falló: solo marcar en rojo lo que seleccionó, sin revelar las correctas
+      if (selectedSet.has(i)) div.classList.add('wrong');
+    }
+  });
+  document.getElementById('btn-confirm-multi').disabled = true;
+  userAnswers.push({ q: currentQ, answer: [...multiSelected], correct: isCorrect });
+  if (isCorrect) score++;
+  showFeedback(isCorrect, q.explicacion);
+}
+
+function renderVF(q, container) {
+  vfChoice = null;
+  const row = document.createElement('div');
+  row.className = 'vf-row';
+  ['✅ Verdadero','❌ Falso'].forEach((label, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'vf-btn';
+    btn.textContent = label;
+    btn.dataset.val = i === 0 ? 'true' : 'false';
+    btn.onclick = () => {
+      document.querySelectorAll('.vf-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      vfChoice = btn.dataset.val;
+      document.getElementById('btn-confirm-vf').disabled = false;
+    };
+    row.appendChild(btn);
+  });
+  container.appendChild(row);
+  const lbl = document.createElement('div');
+  lbl.className = 'vf-sustenta-label';
+  lbl.textContent = '✍️ Sustenta tu respuesta (obligatorio):';
+  container.appendChild(lbl);
+  const ta = document.createElement('textarea');
+  ta.className = 'vf-sustenta';
+  ta.id = 'vf-texto';
+  ta.placeholder = 'Escribe aquí por qué crees que es verdadero o falso...';
+  container.appendChild(ta);
+  const btn = document.createElement('button');
+  btn.className = 'btn-confirm-multi';
+  btn.id = 'btn-confirm-vf';
+  btn.textContent = 'Confirmar respuesta';
+  btn.disabled = true;
+  btn.onclick = confirmVF;
+  container.appendChild(btn);
+}
+
+function confirmVF() {
+  const q = getQ(currentModule, currentQ);
+  const sustenta = document.getElementById('vf-texto').value.trim();
+  const palabras = sustenta.split(/\s+/).filter(w => w.length > 1).length;
+  if (sustenta.length < 30 || palabras < 5) {
+    const ta = document.getElementById('vf-texto');
+    ta.style.borderColor = '#DC3545';
+    ta.style.background = '#FFF5F5';
+    // Mostrar error debajo del textarea
+    let errMsg = document.getElementById('vf-err-msg');
+    if (!errMsg) {
+      errMsg = document.createElement('div');
+      errMsg.id = 'vf-err-msg';
+      errMsg.style.cssText = 'color:#DC3545;font-size:12px;margin-top:4px;margin-bottom:8px;';
+      ta.parentNode.insertBefore(errMsg, ta.nextSibling);
+    }
+    errMsg.textContent = '⚠️ La sustentación debe tener al menos 5 palabras (' + palabras + '/5) y 30 caracteres (' + sustenta.length + '/30). Sé más específico.';
+    return;
+  }
+  const errMsg = document.getElementById('vf-err-msg');
+  if (errMsg) errMsg.remove();
+  const correctVal = q.esVerdadero ? 'true' : 'false';
+  const isCorrect = vfChoice === correctVal;
+  document.querySelectorAll('.vf-btn').forEach(btn => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (isCorrect && btn.dataset.val === correctVal) btn.classList.add('correct');
+    else if (!isCorrect && btn.classList.contains('selected')) btn.classList.add('wrong');
+  });
+  document.getElementById('btn-confirm-vf').disabled = true;
+  document.getElementById('vf-texto').disabled = true;
+  userAnswers.push({ q: currentQ, answer: vfChoice, sustentacion: sustenta, correct: isCorrect });
+  if (isCorrect) score++;
+  showFeedback(isCorrect, q.explicacion);
+}
+
+function renderCorrelacion(q, container) {
+  matchState = {};
+  matchSelectedTerm = null;
+  const hint = document.createElement('div');
+  hint.className = 'match-hint';
+  hint.textContent = '🔗 Haz clic en un término de la izquierda y luego en su definición correcta de la derecha.';
+  container.appendChild(hint);
+  const mc = document.createElement('div');
+  mc.className = 'match-container';
+  const leftCol = document.createElement('div');
+  leftCol.className = 'match-col';
+  const lt = document.createElement('div');
+  lt.className = 'match-col-title';
+  lt.textContent = 'Término';
+  leftCol.appendChild(lt);
+  const rightCol = document.createElement('div');
+  rightCol.className = 'match-col';
+  const rt = document.createElement('div');
+  rt.className = 'match-col-title';
+  rt.textContent = 'Definición';
+  rightCol.appendChild(rt);
+
+  // shuffle definitions order for display
+  const defOrder = shuffle(q.pares.map((_,i) => i));
+
+  q.pares.forEach((par, i) => {
+    const term = document.createElement('div');
+    term.className = 'match-term';
+    term.id = 'mterm-' + i;
+    term.textContent = par.termino;
+    term.onclick = () => selectTerm(i);
+    leftCol.appendChild(term);
+  });
+
+  defOrder.forEach(origIdx => {
+    const def = document.createElement('div');
+    def.className = 'match-def';
+    def.id = 'mdef-' + origIdx;
+    def.textContent = q.pares[origIdx].definicion;
+    def.onclick = () => selectDef(origIdx);
+    rightCol.appendChild(def);
+  });
+
+  mc.appendChild(leftCol);
+  mc.appendChild(rightCol);
+  container.appendChild(mc);
+
+  const btn = document.createElement('button');
+  btn.className = 'btn-confirm-multi';
+  btn.id = 'btn-confirm-match';
+  btn.textContent = 'Confirmar emparejamiento';
+  btn.disabled = true;
+  btn.onclick = confirmMatch;
+  container.appendChild(btn);
+}
+
+function selectTerm(idx) {
+  if (matchState[idx] !== undefined) return; // ya emparejado
+  document.querySelectorAll('.match-term').forEach(t => t.classList.remove('selected'));
+  document.getElementById('mterm-' + idx).classList.add('selected');
+  matchSelectedTerm = idx;
+}
+
+function selectDef(defIdx) {
+  if (matchSelectedTerm === null) return;
+  const usedDefs = Object.values(matchState);
+  if (usedDefs.includes(defIdx)) return;
+  const q = getQ(currentModule, currentQ);
+  const termIdx = matchSelectedTerm;
+  matchState[termIdx] = defIdx;
+  const termEl = document.getElementById('mterm-' + termIdx);
+  termEl.classList.remove('selected');
+  termEl.style.opacity = '0.6';
+  termEl.style.pointerEvents = 'none';
+  const defEl = document.getElementById('mdef-' + defIdx);
+  defEl.classList.add('matched');
+  defEl.style.pointerEvents = 'none';
+  const pairLabel = document.createElement('div');
+  pairLabel.className = 'match-pair';
+  pairLabel.textContent = '↔ ' + q.pares[termIdx].termino;
+  defEl.appendChild(pairLabel);
+  matchSelectedTerm = null;
+  document.querySelectorAll('.match-term').forEach(t => t.classList.remove('selected'));
+  const total = q.pares.length;
+  const confirmBtn = document.getElementById('btn-confirm-match');
+  if (confirmBtn) confirmBtn.disabled = Object.keys(matchState).length < total;
+}
+
+function confirmMatch() {
+  const q = getQ(currentModule, currentQ);
+  let allCorrect = true;
+  q.pares.forEach((par, i) => {
+    const correct = matchState[i] === i;
+    if (!correct) allCorrect = false;
+  });
+  if (allCorrect) {
+    // Acertó todo: mostrar verde
+    q.pares.forEach((par, i) => {
+      const termEl = document.getElementById('mterm-' + i);
+      const defEl = document.getElementById('mdef-' + matchState[i]);
+      if (termEl) { termEl.style.borderColor = '#28A745'; termEl.style.background = '#D4EDDA'; }
+      if (defEl) { defEl.style.borderColor = '#28A745'; }
+    });
+  } else {
+    // Falló: poner todo en gris neutro, sin revelar cuáles estaban bien
+    q.pares.forEach((par, i) => {
+      const termEl = document.getElementById('mterm-' + i);
+      const defEl = document.getElementById('mdef-' + matchState[i]);
+      if (termEl) { termEl.style.borderColor = '#DC3545'; termEl.style.background = '#F8D7DA'; termEl.style.opacity = '0.7'; }
+      if (defEl) { defEl.classList.remove('matched'); defEl.style.borderColor = '#DC3545'; defEl.style.background = '#F8D7DA'; defEl.style.opacity = '0.7'; }
+    });
+  }
+  document.getElementById('btn-confirm-match').disabled = true;
+  document.querySelectorAll('.match-def, .match-term').forEach(el => { el.onclick = null; });
+  userAnswers.push({ q: currentQ, answer: {...matchState}, correct: allCorrect });
+  if (allCorrect) score++;
+  showFeedback(allCorrect, q.explicacion);
+}
+
+function showFeedback(isCorrect, explicacion) {
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+  document.getElementById('fb-title').textContent = isCorrect ? '✅ ¡Correcto!' : '❌ Incorrecto — sigue al siguiente.';
+  // Solo mostrar explicación si es correcto; si no, solo el mensaje de error
+  document.getElementById('fb-text').textContent = isCorrect ? explicacion : 'Repasa este tema en el material de formación.';
+  fb.style.display = 'block';
+  const btn = document.getElementById('btn-next');
+  const total = PREGUNTAS[currentModule].length;
+  btn.textContent = currentQ < total - 1 ? 'Siguiente pregunta →' : 'Ver resultados →';
+  btn.style.display = 'block';
+}
+
+// Mismo tratamiento para selección simple
+
+
+function selectAnswer(idx) {
+  const q = getQ(currentModule, currentQ);
+  document.querySelectorAll('.option').forEach(o => { o.classList.add('disabled'); o.onclick = null; });
+  const isCorrect = idx === q.correcta;
+  // Solo marcar verde la opción correcta cuando el analista acertó
+  // Si falla: solo marcar su selección en rojo, sin revelar cuál era la correcta
+  document.querySelectorAll('.option')[idx].classList.add(isCorrect ? 'correct' : 'wrong');
+  userAnswers.push({ q: currentQ, answer: idx, correct: isCorrect });
+  if (isCorrect) score++;
+  showFeedback(isCorrect, q.explicacion);
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ < PREGUNTAS[currentModule].length) renderQuestion();
+  else finishQuiz();
+}
+
+function retryQuiz() {
+  clearInterval(timerInterval);
+  startModule(currentModule);
+}
+
+function goHome() {
+  clearInterval(timerInterval);
+  showScreen('screen-home');
+  if (userName) renderModulos();
+}
+
+function finishQuiz() {
+  clearInterval(timerInterval);
+  showScreen('screen-sending');
+  const total = PREGUNTAS[currentModule].length;
+  const pct = Math.round((score / total) * 100);
+  const mins = Math.floor(timerElapsed / 60);
+  const secs = timerElapsed % 60;
+  const timeStr = mins + 'm ' + secs + 's';
+  const mod = MODULOS.find(m => m.id === currentModule);
+
+  // Guardar progreso local
+  const prog = getProgress(userName);
+  if (!prog[currentModule] || pct > prog[currentModule].pct) {
+    prog[currentModule] = { pct, score, total, time: timeStr };
+    saveProgress(userName, prog);
+  }
+
+  const payload = {
+    nombre: userName,
+    modulo: mod.label,
+    moduloId: currentModule,
+    score, total, pct,
+    tiempo: timeStr,
+    fecha: new Date().toLocaleString('es-CO')
+  };
+  fetch(SHEETS_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(() => showResultScreen(pct, timeStr, '✅ Resultados guardados correctamente.', true))
+    .catch(() => showResultScreen(pct, timeStr, '⚠️ No se pudo guardar. Informa al formador tu puntaje: ' + pct + '%', false));
+}
+
+function showResultScreen(pct, timeStr, syncMsg, ok) {
+  const total = PREGUNTAS[currentModule].length;
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-frac').textContent = score + '/' + total;
+  document.getElementById('res-name').textContent = userName;
+  document.getElementById('res-time').textContent = '⏱ Tiempo utilizado: ' + timeStr;
+  let sub = '';
+  if (pct >= 90) sub = '🏅 ¡Excelente! Dominio sólido del módulo. Puedes continuar al siguiente.';
+  else if (pct >= 85) sub = '✅ ¡Aprobado! Alcanzaste el mínimo requerido. Puedes continuar al siguiente módulo.';
+  else if (pct >= 70) sub = '⚠️ Puntaje insuficiente (' + pct + '%). Necesitas al menos 85% para desbloquear el siguiente módulo. ¡Inténtalo de nuevo!';
+  else sub = '❌ Puntaje insuficiente (' + pct + '%). Necesitas al menos 85% para continuar. Repasa el material y vuelve a intentarlo.';
+  document.getElementById('res-sub').textContent = sub;
+  const syncDiv = document.getElementById('sync-status');
+  syncDiv.textContent = syncMsg;
+  syncDiv.className = 'sync-status ' + (ok ? 'sync-ok' : 'sync-fail');
+  syncDiv.style.display = 'block';
+  const reviewList = document.getElementById('review-list');
+  reviewList.innerHTML = '';
+  userAnswers.forEach(ua => {
+    const q = getQ(currentModule, ua.q);
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (ua.correct ? 'ok' : 'fail');
+    const qText = q.texto.split('\n')[0];
+    const tipoTag = q.tipo === 'vf' ? '[V/F] ' : q.tipo === 'multi' ? '[Multi] ' : q.tipo === 'correlacion' ? '[Correlación] ' : q.tipo === 'sustentacion' ? '[Sustentación] ' : '';
+    div.innerHTML = '<div class="ri-q">' + (ua.correct ? '✅' : '❌') + ' ' + tipoTag + 'P' + (ua.q+1) + ': ' + qText.substring(0,90) + (qText.length>90?'...':'') + '</div>' +
+      (!ua.correct ? '<div class="ri-exp">' + q.explicacion + '</div>' : '');
+    reviewList.appendChild(div);
+  });
+  showScreen('screen-results');
+}
+
+// ════════════════════════════════════════════════════════════
+// MODAL LOGIN FORMADORA
+// ════════════════════════════════════════════════════════════
+function openLoginModal() {
+  document.getElementById('login-modal').classList.add('open');
+  document.getElementById('modal-pwd').value = '';
+  document.getElementById('modal-err').style.display = 'none';
+  setTimeout(() => document.getElementById('modal-pwd').focus(), 100);
+}
+function closeLoginModal() { document.getElementById('login-modal').classList.remove('open'); }
+function checkLogin() {
+  const pwd = document.getElementById('modal-pwd').value;
+  if (pwd === FORMADORA_PWD) {
+    closeLoginModal();
+    showScreen('screen-panel');
+    loadResults();
+    renderQEditor('dia1');
+  } else {
+    document.getElementById('modal-err').style.display = 'block';
+    document.getElementById('modal-pwd').value = '';
+    document.getElementById('modal-pwd').focus();
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// PANEL — TABS
+// ════════════════════════════════════════════════════════════
+function switchTab(tabId) {
+  document.querySelectorAll('.panel-tab').forEach((t,i) => {
+    const tabs = ['tab-results','tab-stats','tab-questions'];
+    t.classList.toggle('active', tabs[i] === tabId);
+  });
+  document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  if (tabId === 'tab-stats') buildStats();
+}
+
+// ════════════════════════════════════════════════════════════
+// PANEL — RESULTADOS EN VIVO
+// ════════════════════════════════════════════════════════════
+let allResults = [];
+
+function loadResults() {
+  const tbody = document.getElementById('results-tbody');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#A0A0A0;padding:24px;">⏳ Cargando resultados...</td></tr>';
+  const filterMod = document.getElementById('filter-module').value;
+  const url = SHEETS_URL + '?action=getResults' + (filterMod ? '&modulo=' + encodeURIComponent(filterMod) : '');
+  fetch(url)
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(data => {
+      allResults = data.results || [];
+      renderResultsTable(allResults);
+      document.getElementById('last-updated').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-CO');
+    })
+    .catch(() => {
+      tbody.innerHTML = `<tr><td colspan="8" style="padding:20px;">
+        <div style="background:#FFF8E1;border:1.5px solid #FFD54F;border-radius:8px;padding:16px;font-size:13px;line-height:1.8;">
+          <strong>⚠️ El Apps Script necesita un doGet() para mostrar resultados aquí.</strong><br>
+          Mientras tanto puedes ver los resultados directamente en la Sheet:<br><br>
+          <a href="https://docs.google.com/spreadsheets/d/1q1DABgHp2XCm_1Y_QJYwl7ysJF6yyoft200Gb7BDiDQ" target="_blank"
+             style="background:#000;color:#fff;padding:9px 16px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block;">
+            📊 Abrir Google Sheets →
+          </a>
+          <br><br>
+          <span style="color:#6B6B6B;">Para habilitar la tabla en vivo, actualiza el Apps Script con un doGet() que devuelva los resultados en JSON y vuelve a desplegar.</span>
         </div>
-      </div>
-      <div class="eval-action">
-        <button class="btn-go">Comenzar →</button>
-      </div>
-    </div>
+      </td></tr>`;
+      document.getElementById('last-updated').textContent = 'Sin conexión directa';
+    });
+}
 
-    <div class="eval-card" onclick="window.location.href='quiz-dia-3.html'">
-      <div class="eval-card-left">
-        <div class="eval-number">02</div>
-        <div class="eval-info">
-          <div class="eval-day">Día 3</div>
-          <div class="eval-name">Quiz · Flujo Operativo SAC</div>
-          <div class="eval-meta">
-            <span class="pill">5 preguntas</span>
-            <span class="pill">Casos reales</span>
-            <span class="pill">Diagnóstico · Sin umbral</span>
-          </div>
-        </div>
-      </div>
-      <div class="eval-action">
-        <button class="btn-go">Comenzar →</button>
-      </div>
-    </div>
+function renderResultsTable(data) {
+  const tbody = document.getElementById('results-tbody');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#A0A0A0;padding:24px;">Sin resultados aún.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(r => {
+    const pct = parseInt(r.pct) || 0;
+    const cls = pct >= 85 ? 'pct-high' : pct >= 60 ? 'pct-mid' : 'pct-low';
+    const estadoCls = pct >= 85 ? 'color:#155724' : 'color:#721C24';
+    const pestanas = parseInt(r.pestanas) || 0;
+    const pestanaFlag = pestanas > 2
+      ? `<span style="color:#DC3545;font-weight:bold;">⚠️ ${pestanas}</span>`
+      : pestanas > 0 ? `<span style="color:#856404;">${pestanas}</span>` : `<span style="color:#A0A0A0;">0</span>`;
+    return `<tr>
+      <td><strong>${r.nombre || '—'}</strong></td>
+      <td style="color:#6B6B6B;font-size:12px;">${r.correo || '—'}</td>
+      <td style="font-size:12px;">${r.modulo || '—'}</td>
+      <td><span class="pct-pill ${cls}">${pct}%</span> <span style="color:#A0A0A0;font-size:11px;">${r.score||0}/${r.total||0}</span></td>
+      <td style="font-size:12px;${estadoCls}">${r.estado || '—'}</td>
+      <td style="font-size:12px;color:#6B6B6B;">${formatTiempo(r.tiempo)}</td>
+      <td style="text-align:center;">${pestanaFlag}</td>
+      <td style="color:#A0A0A0;font-size:11px;">${r.fecha || '—'}</td>
+    </tr>`;
+  }).join('');
+}
 
-    <div class="eval-card" onclick="window.location.href='certificacion-sac.html'">
-      <div class="eval-card-left">
-        <div class="eval-number">03</div>
-        <div class="eval-info">
-          <div class="eval-day">Día 4 · Certificación</div>
-          <div class="eval-name">Certificación SAC · Evaluación Final</div>
-          <div class="eval-meta">
-            <span class="pill cert">25 preguntas</span>
-            <span class="pill cert">Meta: 85%</span>
-            <span class="pill cert">Cobertura completa</span>
-          </div>
-        </div>
-      </div>
-      <div class="eval-action">
-        <button class="btn-go">Comenzar →</button>
-      </div>
-    </div>
+function formatTiempo(t) {
+  if (!t) return '—';
+  const seg = parseInt(t);
+  if (isNaN(seg)) return t;
+  const m = Math.floor(seg / 60), s = seg % 60;
+  return m > 0 ? m + 'm ' + s + 's' : s + 's';
+}
 
-  </div>
+function buildStats() {
+  if (!allResults.length) { loadResults(); return; }
+  const total = allResults.length;
+  const avg = Math.round(allResults.reduce((s,r) => s + (parseInt(r.pct)||0), 0) / total);
+  const pass = allResults.filter(r => parseInt(r.pct) >= 85).length;
+  const best = Math.max(...allResults.map(r => parseInt(r.pct)||0));
+  document.getElementById('st-total').textContent = total;
+  document.getElementById('st-avg').textContent = avg + '%';
+  document.getElementById('st-pass').textContent = pass;
+  document.getElementById('st-best').textContent = best + '%';
 
-  <p class="section-label" style="margin-bottom:16px;">Fase 2 · Próximamente</p>
+  // Tabla por analista — mejor puntaje por módulo
+  const byName = {};
+  allResults.forEach(r => {
+    const name = r.nombre || '—';
+    if (!byName[name]) byName[name] = { correo: r.correo || '', modulos: {} };
+    // Normalizar moduloId
+    const raw = (r.moduloId || r.modulo || '').toLowerCase();
+    let mid = raw.includes('1') || raw.includes('dias') ? 'dia1'
+             : raw.includes('3') ? 'dia3'
+             : raw.includes('cert') ? 'cert' : null;
+    if (!mid) mid = raw;
+    const cur = parseInt(byName[name].modulos[mid]);
+    const nuevo = parseInt(r.pct) || 0;
+    if (isNaN(cur) || nuevo > cur) byName[name].modulos[mid] = nuevo;
+  });
 
-  <div class="coming-soon-grid">
-    <div class="coming-card">
-      <div class="coming-label">En desarrollo</div>
-      <div class="coming-name">Certificación Soporte N1</div>
-      <div class="coming-tag">Diagnóstico técnico · Red · Equipos · Escalamientos</div>
-    </div>
-    <div class="coming-card">
-      <div class="coming-label">En desarrollo</div>
-      <div class="coming-name">Certificación TV</div>
-      <div class="coming-tag">TV Box · IPTV · Control remoto · Diagnóstico</div>
-    </div>
-  </div>
+  const tbody = document.getElementById('stats-tbody');
+  tbody.innerHTML = Object.entries(byName).map(([name, info]) => {
+    const mods = info.modulos;
+    const d1 = mods['dia1'] !== undefined ? pillPct(mods['dia1']) : '<span style="color:#A0A0A0">—</span>';
+    const d3 = mods['dia3'] !== undefined ? pillPct(mods['dia3']) : '<span style="color:#A0A0A0">—</span>';
+    const ce = mods['cert'] !== undefined ? pillPct(mods['cert']) : '<span style="color:#A0A0A0">—</span>';
+    const allDone = mods['dia1'] >= 85 && mods['dia3'] >= 85 && mods['cert'] >= 85;
+    const someApproved = mods['dia1'] >= 85 || mods['dia3'] >= 85 || mods['cert'] >= 85;
+    const status = allDone
+      ? '<span class="pct-pill pct-high">✅ Certificado</span>'
+      : someApproved ? '<span class="pct-pill pct-mid">En progreso</span>'
+      : '<span class="pct-pill pct-low">Sin aprobar</span>';
+    return `<tr>
+      <td><strong>${name}</strong><br><span style="color:#A0A0A0;font-size:11px;">${info.correo}</span></td>
+      <td>${d1}</td><td>${d3}</td><td>${ce}</td><td>${status}</td>
+    </tr>`;
+  }).join('');
+}
 
-</main>
+function pillPct(pct) {
+  const cls = pct >= 85 ? 'pct-high' : pct >= 60 ? 'pct-mid' : 'pct-low';
+  return `<span class="pct-pill ${cls}">${pct}%</span>`;
+}
 
-<footer class="site-footer">
-  <span class="footer-text">Somos Internet · Formación Inicial SAC</span>
-  <span class="footer-version">v1.0 · 2026</span>
-</footer>
+// ════════════════════════════════════════════════════════════
+// PANEL — EDITOR DE PREGUNTAS
+// ════════════════════════════════════════════════════════════
+function switchQModule(moduleId, btn) {
+  currentQEditor = moduleId;
+  document.querySelectorAll('.ms-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderQEditor(moduleId);
+}
 
+function renderQEditor(moduleId) {
+  const pregs = PREGUNTAS[moduleId];
+  const container = document.getElementById('q-editor-list');
+  container.innerHTML = '';
+  const tipoLabels = {seleccion:'🟢 Selección', multi:'🟡 Múltiple respuesta', vf:'🔵 V/F', correlacion:'🟠 Correlación', sustentacion:'🟣 Sustentación'};
+
+  pregs.forEach((q, idx) => {
+    const card = document.createElement('div');
+    card.className = 'q-editor-card';
+    const tipo = q.tipo || 'seleccion';
+    const tipoLabel = tipoLabels[tipo] || tipo;
+
+    // ── Encabezado ──
+    let html = `<h4>Pregunta ${idx+1} <span style="font-weight:normal;color:#6B6B6B;font-size:12px;">${tipoLabel}</span></h4>`;
+    html += `<textarea rows="3" id="qe-texto-${idx}" placeholder="Texto de la pregunta">${(q.texto||'').replace(/</g,'&lt;')}</textarea>`;
+
+    // ── Cuerpo según tipo ──
+    if (tipo === 'seleccion' || tipo === 'sustentacion') {
+      // 4 opciones + radio para marcar correcta
+      html += `<div style="font-size:11px;color:#A0A0A0;margin:8px 0 4px;">Opciones — marca el radio (●) de la respuesta correcta:</div>`;
+      html += `<div class="q-opts-grid">`;
+      const opts = q.opciones || ['','','',''];
+      ['A','B','C','D'].forEach((l,i) => {
+        const val = (opts[i]||'').replace(/"/g,'&quot;');
+        const chk = q.correcta === i ? 'checked' : '';
+        html += `<div class="q-opt-row">
+          <span class="q-opt-label">${l}</span>
+          <input type="text" id="qe-opt-${idx}-${i}" value="${val}">
+          <input type="radio" name="qe-correcta-${idx}" value="${i}" ${chk} title="Marcar como correcta">
+        </div>`;
+      });
+      html += `</div>`;
+
+    } else if (tipo === 'multi') {
+      // Hasta 5 opciones + checkboxes para correctas
+      html += `<div style="font-size:11px;color:#A0A0A0;margin:8px 0 4px;">Opciones — marca los checkboxes (☑) de TODAS las correctas:</div>`;
+      const opts = q.opciones || ['','','','',''];
+      const correctasSet = new Set(q.correctas || []);
+      opts.forEach((opt, i) => {
+        const val = (opt||'').replace(/"/g,'&quot;');
+        const chk = correctasSet.has(i) ? 'checked' : '';
+        html += `<div class="q-opt-row" style="margin-bottom:6px;">
+          <span class="q-opt-label">${i+1}</span>
+          <input type="text" id="qe-opt-${idx}-${i}" value="${val}" style="flex:1;padding:7px 10px;border:1.5px solid #D4D4D4;border-radius:6px;font-size:13px;">
+          <input type="checkbox" name="qe-multi-${idx}" value="${i}" ${chk} title="Marcar como correcta" style="width:16px;height:16px;accent-color:#000;">
+        </div>`;
+      });
+
+    } else if (tipo === 'vf') {
+      // Solo esVerdadero toggle
+      const esV = q.esVerdadero;
+      html += `<div style="margin:10px 0 6px;font-size:13px;font-weight:bold;">Respuesta correcta:</div>
+        <div style="display:flex;gap:10px;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">
+            <input type="radio" name="qe-vf-${idx}" value="true" ${esV?'checked':''} style="accent-color:#000;"> ✅ Verdadero
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">
+            <input type="radio" name="qe-vf-${idx}" value="false" ${!esV?'checked':''} style="accent-color:#000;"> ❌ Falso
+          </label>
+        </div>`;
+
+    } else if (tipo === 'correlacion') {
+      // Pares término ↔ definición
+      html += `<div style="font-size:11px;color:#A0A0A0;margin:8px 0 4px;">Pares de correlación (término → definición):</div>`;
+      const pares = q.pares || [];
+      pares.forEach((par, i) => {
+        const t = (par.termino||'').replace(/"/g,'&quot;');
+        const d = (par.definicion||'').replace(/"/g,'&quot;');
+        html += `<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+          <span style="font-size:12px;font-weight:bold;color:#6B6B6B;min-width:20px;">${i+1}</span>
+          <input type="text" id="qe-par-t-${idx}-${i}" value="${t}" placeholder="Término" style="flex:1;padding:7px 10px;border:1.5px solid #D4D4D4;border-radius:6px;font-size:13px;">
+          <span style="color:#A0A0A0;font-size:16px;">↔</span>
+          <input type="text" id="qe-par-d-${idx}-${i}" value="${d}" placeholder="Definición" style="flex:2;padding:7px 10px;border:1.5px solid #D4D4D4;border-radius:6px;font-size:13px;">
+        </div>`;
+      });
+    }
+
+    // ── Explicación (todos los tipos) ──
+    html += `<div style="font-size:11px;color:#A0A0A0;margin:10px 0 4px;">Explicación (se muestra al acertar):</div>`;
+    html += `<textarea rows="2" id="qe-exp-${idx}" placeholder="Explicación de la respuesta correcta" style="margin-top:0;">${(q.explicacion||'').replace(/</g,'&lt;')}</textarea>`;
+
+    card.innerHTML = html;
+    container.appendChild(card);
+  });
+}
+
+function saveQuestions() {
+  const pregs = PREGUNTAS[currentQEditor];
+  let savedCount = 0;
+  pregs.forEach((q, idx) => {
+    const tipo = q.tipo || 'seleccion';
+    // Texto siempre
+    const textoEl = document.getElementById('qe-texto-' + idx);
+    if (textoEl) q.texto = textoEl.value;
+    const expEl = document.getElementById('qe-exp-' + idx);
+    if (expEl) q.explicacion = expEl.value;
+
+    if (tipo === 'seleccion' || tipo === 'sustentacion') {
+      q.opciones = [0,1,2,3].map(i => {
+        const el = document.getElementById('qe-opt-' + idx + '-' + i);
+        return el ? el.value : (q.opciones[i]||'');
+      });
+      const radios = document.querySelectorAll('input[name="qe-correcta-' + idx + '"]');
+      radios.forEach(r => { if (r.checked) q.correcta = parseInt(r.value); });
+
+    } else if (tipo === 'multi') {
+      q.opciones = (q.opciones||[]).map((_, i) => {
+        const el = document.getElementById('qe-opt-' + idx + '-' + i);
+        return el ? el.value : _;
+      });
+      const checks = document.querySelectorAll('input[name="qe-multi-' + idx + '"]:checked');
+      q.correctas = [...checks].map(c => parseInt(c.value));
+
+    } else if (tipo === 'vf') {
+      const radios = document.querySelectorAll('input[name="qe-vf-' + idx + '"]');
+      radios.forEach(r => { if (r.checked) q.esVerdadero = r.value === 'true'; });
+
+    } else if (tipo === 'correlacion') {
+      q.pares = (q.pares||[]).map((par, i) => ({
+        termino:    (document.getElementById('qe-par-t-' + idx + '-' + i)||{}).value || par.termino,
+        definicion: (document.getElementById('qe-par-d-' + idx + '-' + i)||{}).value || par.definicion,
+      }));
+    }
+    savedCount++;
+  });
+  const msg = document.getElementById('save-msg');
+  msg.textContent = '✅ ' + savedCount + ' preguntas guardadas correctamente.';
+  msg.style.display = 'block';
+  setTimeout(() => msg.style.display = 'none', 3000);
+}
+
+function syncFromSheet() {
+  const url = document.getElementById('sheet-url-input').value.trim();
+  if (!url) { alert('Ingresa la URL del Apps Script que expone las preguntas en JSON.'); return; }
+  fetch(url + '?action=getQuestions&modulo=' + currentQEditor)
+    .then(r => r.json())
+    .then(data => {
+      if (data.preguntas && data.preguntas.length) {
+        PREGUNTAS[currentQEditor] = data.preguntas;
+        renderQEditor(currentQEditor);
+        alert('✅ ' + data.preguntas.length + ' preguntas importadas correctamente.');
+      } else {
+        alert('La Sheet no devolvió preguntas para este módulo.');
+      }
+    })
+    .catch(() => alert('No se pudo conectar con la Sheet. Verifica la URL y que esté publicada correctamente.'));
+}
+
+// ════════════════════════════════════════════════════════════
+// UTILIDADES
+// ════════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
 </body>
 </html>
