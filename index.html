@@ -375,7 +375,7 @@ tr:last-child td { border-bottom: none; }
         <button class="ms-btn" onclick="switchQModule('cert', this)">Certificación</button>
       </div>
       <div class="sheet-sync-row">
-        <input type="text" id="sheet-url-input" placeholder="URL de Google Sheet con preguntas (opcional)" value="">
+        <input type="text" id="sheet-url-input" placeholder="URL del Apps Script" value="https://script.google.com/macros/s/AKfycbwoDpkEMPGniJEEdyNULVHDGtwXwSlDBe0Z4E-9jpzLHigjsDMZ4J1LaX79onaSuv2g/exec">
         <button class="btn-sync-sheet" onclick="syncFromSheet()">📥 Importar desde Sheet</button>
       </div>
       <p class="sync-note">💡 La Sheet debe tener columnas: <strong>modulo · texto · opcionA · opcionB · opcionC · opcionD · correcta (0-3) · explicacion · nivel</strong><br>
@@ -406,7 +406,7 @@ tr:last-child td { border-bottom: none; }
 // ════════════════════════════════════════════════════════════
 // CONFIGURACIÓN
 // ════════════════════════════════════════════════════════════
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwiUS26tcJZ4CBmDMDJGnwSonm2ZplWhB2QiQf1LEkHJumyIroulxPHs0xh6CHEiLU/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwoDpkEMPGniJEEdyNULVHDGtwXwSlDBe0Z4E-9jpzLHigjsDMZ4J1LaX79onaSuv2g/exec';
 const FORMADORA_PWD = 'somos';
 
 const MODULOS = [
