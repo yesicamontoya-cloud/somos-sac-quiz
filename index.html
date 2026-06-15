@@ -239,7 +239,7 @@ tr:last-child td { border-bottom: none; }
 <div id="screen-home" class="screen active">
   <div class="home">
     <div class="home-hero">
-      <h2>Hola, <span id="home-nombre">analista</span> 👋</h2>
+      <h2>Hola, <span id="home-nombre">analista</span> 👋 <span id="formadora-badge" style="display:none;font-size:13px;background:#000;color:#fff;padding:3px 10px;border-radius:12px;vertical-align:middle;">🔐 Formadora</span></h2>
       <p>Completa los módulos en orden. Cada quiz debe terminarse antes de desbloquear el siguiente.</p>
     </div>
     <div class="name-row">
@@ -319,7 +319,8 @@ tr:last-child td { border-bottom: none; }
   <div class="panel">
     <div class="panel-header">
       <h2>📊 Panel de formadora</h2>
-      <button class="btn-retry" onclick="goHome()" style="width:auto;padding:9px 16px;font-size:13px;">← Salir</button>
+      <button class="btn-retry" onclick="goHomeFormadora()" style="width:auto;padding:9px 16px;font-size:13px;">← Ver módulos</button>
+        <button class="btn-retry" onclick="goHome()" style="width:auto;padding:9px 16px;font-size:13px;margin-left:8px;">← Salir</button>
     </div>
     <div class="panel-tabs">
       <div class="panel-tab active" onclick="switchTab('tab-results')">Resultados en vivo</div>
@@ -513,6 +514,10 @@ function confirmarNombre() {
   userName = document.getElementById('nombre-input').value.trim();
   document.getElementById('home-nombre').textContent = userName;
   document.getElementById('modulos-wrap').style.display = 'block';
+  // Si es formadora, mostrar badge
+  const esFormadora = sessionStorage.getItem('sac_formadora') === '1';
+  const badgeEl = document.getElementById('formadora-badge');
+  if (esFormadora && badgeEl) badgeEl.style.display = 'inline-block';
   // Intentar recuperar progreso desde la Sheet (por si cambió de dispositivo)
   syncProgressFromSheet(userName);
   renderModulos();
@@ -560,7 +565,8 @@ function renderModulos() {
     const prevDone = idx === 0 || (prevProg && prevProg.pct >= 85);
     const mProg = prog[m.id];
     const yaIntentado = !!mProg; // ya lo intentó — siempre puede reintentar
-    const locked = !prevDone && !yaIntentado;
+    const esFormadora = sessionStorage.getItem('sac_formadora') === '1';
+    const locked = !prevDone && !yaIntentado && !esFormadora;
     const pct = mProg ? mProg.pct : null;
 
     const card = document.createElement('div');
@@ -1056,8 +1062,19 @@ function retryQuiz() {
 
 function goHome() {
   clearInterval(timerInterval);
+  sessionStorage.removeItem('sac_formadora');
   showScreen('screen-home');
   if (userName) renderModulos();
+}
+
+function goHomeFormadora() {
+  clearInterval(timerInterval);
+  // Mantiene el flag de formadora para poder entrar a cualquier módulo
+  showScreen('screen-home');
+  if (userName) renderModulos();
+  else {
+    document.getElementById('modulos-wrap').style.display = 'none';
+  }
 }
 
 function finishQuiz() {
@@ -1138,9 +1155,10 @@ function checkLogin() {
   const pwd = document.getElementById('modal-pwd').value;
   if (pwd === FORMADORA_PWD) {
     closeLoginModal();
+    sessionStorage.setItem('sac_formadora', '1');
     showScreen('screen-panel');
     loadResults();
-    renderQEditor('dia1');
+    setTimeout(() => renderQEditor('dia1'), 100);
   } else {
     document.getElementById('modal-err').style.display = 'block';
     document.getElementById('modal-pwd').value = '';
