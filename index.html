@@ -513,7 +513,40 @@ function confirmarNombre() {
   userName = document.getElementById('nombre-input').value.trim();
   document.getElementById('home-nombre').textContent = userName;
   document.getElementById('modulos-wrap').style.display = 'block';
+  // Intentar recuperar progreso desde la Sheet (por si cambió de dispositivo)
+  syncProgressFromSheet(userName);
   renderModulos();
+}
+
+function syncProgressFromSheet(nombre) {
+  // Consultar la Sheet por resultados aprobados de este analista
+  fetch(SHEETS_URL + '?action=getResults')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.results || !data.results.length) return;
+      // Filtrar solo resultados de este analista (comparación flexible)
+      const mis = data.results.filter(r => 
+        (r.nombre||'').toLowerCase().trim() === nombre.toLowerCase().trim()
+      );
+      if (!mis.length) return;
+      data.results = mis;
+      const prog = getProgress(nombre);
+      let updated = false;
+      data.results.forEach(r => {
+        const pct = parseInt(r.pct) || 0;
+        const mid = (r.moduloId || '').toLowerCase();
+        // Solo actualizar si el pct guardado en Sheet es mejor que el local
+        if (pct >= 85 && (!prog[mid] || pct > (prog[mid].pct || 0))) {
+          prog[mid] = { pct, score: parseInt(r.score)||0, total: parseInt(r.total)||0, time: r.tiempo || '' };
+          updated = true;
+        }
+      });
+      if (updated) {
+        saveProgress(nombre, prog);
+        renderModulos();
+      }
+    })
+    .catch(() => {}); // silencioso si falla
 }
 
 function renderModulos() {
@@ -1236,11 +1269,41 @@ function buildStats() {
       ? '<span class="pct-pill pct-high">✅ Certificado</span>'
       : someApproved ? '<span class="pct-pill pct-mid">En progreso</span>'
       : '<span class="pct-pill pct-low">Sin aprobar</span>';
+    const unlockBtns = `
+      <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
+        <button onclick="desbloquearModulo('${name}','dia3')" style="font-size:11px;padding:3px 8px;border:1px solid #D4D4D4;border-radius:4px;cursor:pointer;background:#fff;" title="Dar acceso al Quiz Día 3">🔓 D3</button>
+        <button onclick="desbloquearModulo('${name}','cert')" style="font-size:11px;padding:3px 8px;border:1px solid #D4D4D4;border-radius:4px;cursor:pointer;background:#fff;" title="Dar acceso a la Certificación">🔓 Cert</button>
+      </div>`;
     return `<tr>
-      <td><strong>${name}</strong><br><span style="color:#A0A0A0;font-size:11px;">${info.correo}</span></td>
+      <td><strong>${name}</strong><br><span style="color:#A0A0A0;font-size:11px;">${info.correo}</span>${unlockBtns}</td>
       <td>${d1}</td><td>${d3}</td><td>${ce}</td><td>${status}</td>
     </tr>`;
   }).join('');
+}
+
+function desbloquearModulo(nombre, moduloId) {
+  const labels = { dia3: 'Quiz Día 3', cert: 'Certificación SAC' };
+  if (!confirm('¿Desbloquear ' + (labels[moduloId]||moduloId) + ' para ' + nombre + '?\n\nEsto guardará un pase de acceso en su navegador la próxima vez que entre con ese nombre.')) return;
+  // Guardar el pase como un resultado manual en la Sheet
+  const payload = {
+    nombre: nombre,
+    moduloId: moduloId === 'cert' ? 'dia3' : 'dia1', // desbloquear el módulo anterior
+    modulo: moduloId === 'cert' ? 'Quiz Día 3' : 'Quiz Día 1-2',
+    score: 1, total: 1, pct: 85,
+    tiempo: '0m 0s',
+    tiempoSeg: 0,
+    desbloqueoManual: true,
+    fecha: new Date().toLocaleString('es-CO')
+  };
+  fetch(SHEETS_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(() => {
+    alert('✅ Pase de acceso guardado. La próxima vez que ' + nombre + ' entre al portal, ' + (labels[moduloId]||moduloId) + ' se desbloqueará automáticamente.');
+  }).catch(() => {
+    alert('⚠️ No se pudo guardar en la Sheet. Pero puedes decirle al analista que ingrese con exactamente este nombre: ' + nombre);
+  });
 }
 
 function pillPct(pct) {
