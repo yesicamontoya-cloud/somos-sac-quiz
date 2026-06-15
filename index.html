@@ -555,24 +555,24 @@ function renderModulos() {
   list.innerHTML = '';
 
   MODULOS.forEach((m, idx) => {
-    // El módulo está desbloqueado si es el primero o si el anterior fue completado al menos 1 vez
+    // Bloqueado solo si el módulo anterior no tiene 85%+ Y el analista nunca lo ha intentado
     const prevProg = idx === 0 ? null : prog[MODULOS[idx-1].id];
     const prevDone = idx === 0 || (prevProg && prevProg.pct >= 85);
     const mProg = prog[m.id];
-    const locked = !prevDone;
+    const yaIntentado = !!mProg; // ya lo intentó — siempre puede reintentar
+    const locked = !prevDone && !yaIntentado;
     const pct = mProg ? mProg.pct : null;
 
     const card = document.createElement('div');
-    card.className = 'modulo-card' + (locked ? ' locked' : '') + (mProg ? ' done' : '');
+    card.className = 'modulo-card' + (locked ? ' locked' : '') + (mProg && mProg.pct >= 85 ? ' done' : '');
     if (!locked) card.onclick = () => startModule(m.id);
 
     let badgeHtml = '';
     const prevForBadge = idx === 0 ? null : prog[MODULOS[idx-1].id];
     const prevApproved = idx === 0 || (prevForBadge && prevForBadge.pct >= 85);
-    if (!prevApproved && idx > 0) badgeHtml = '<span class="modulo-badge locked-badge">🔒 Requiere 85% en módulo anterior</span>';
-    else if (locked) badgeHtml = '<span class="modulo-badge locked-badge">🔒 Bloqueado</span>';
+    if (locked) badgeHtml = '<span class="modulo-badge locked-badge">🔒 Requiere 85% en módulo anterior</span>';
     else if (mProg && mProg.pct >= 85) badgeHtml = '<span class="modulo-badge">✅ Aprobado</span>';
-    else if (mProg && mProg.pct < 85) badgeHtml = '<span class="modulo-badge pending">⚠️ ' + mProg.pct + '% — Se requiere 85% para continuar</span>';
+    else if (mProg && mProg.pct < 85) badgeHtml = '<span class="modulo-badge pending">⚠️ ' + mProg.pct + '% — Intenta de nuevo para mejorar</span>';
     else badgeHtml = '<span class="modulo-badge pending">Pendiente</span>';
 
     let rightHtml = '';
@@ -1102,8 +1102,8 @@ function showResultScreen(pct, timeStr, syncMsg, ok) {
   let sub = '';
   if (pct >= 90) sub = '🏅 ¡Excelente! Dominio sólido del módulo. Puedes continuar al siguiente.';
   else if (pct >= 85) sub = '✅ ¡Aprobado! Alcanzaste el mínimo requerido. Puedes continuar al siguiente módulo.';
-  else if (pct >= 70) sub = '⚠️ Puntaje insuficiente (' + pct + '%). Necesitas al menos 85% para desbloquear el siguiente módulo. ¡Inténtalo de nuevo!';
-  else sub = '❌ Puntaje insuficiente (' + pct + '%). Necesitas al menos 85% para continuar. Repasa el material y vuelve a intentarlo.';
+  else if (pct >= 70) sub = '⚠️ ' + pct + '% — Necesitas al menos 85% para desbloquear el siguiente módulo. Puedes reintentar este cuando quieras.';
+  else sub = '❌ ' + pct + '% — Necesitas al menos 85% para avanzar. Repasa el material y vuelve a intentarlo — los reintentos son ilimitados.';
   document.getElementById('res-sub').textContent = sub;
   const syncDiv = document.getElementById('sync-status');
   syncDiv.textContent = syncMsg;
