@@ -244,6 +244,7 @@ tr:last-child td { border-bottom: none; }
     </div>
     <div class="name-row">
       <input type="text" class="name-input" id="nombre-input" placeholder="Escribe tu nombre completo" oninput="onNombreInput()">
+      <input type="email" class="name-input" id="correo-input" placeholder="Escribe tu correo corporativo" style="margin-top:8px;" oninput="onNombreInput()">
       <button class="btn-continuar" id="btn-continuar" onclick="confirmarNombre()" disabled>Continuar →</button>
     </div>
     <div id="modulos-wrap" style="display:none">
@@ -483,6 +484,16 @@ let PREGUNTAS = {
 // ESTADO
 // ════════════════════════════════════════════════════════════
 let userName = '';
+let userCorreo = '';
+window._tabChanges = 0;
+window._focusLosses = 0;
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) window._tabChanges++;
+});
+window.addEventListener('blur', () => {
+  window._focusLosses++;
+});
 let currentModule = null;
 let currentQ = 0;
 let score = 0;
@@ -517,6 +528,7 @@ function onNombreInput() {
 
 function confirmarNombre() {
   userName = document.getElementById('nombre-input').value.trim();
+  userCorreo = document.getElementById('correo-input').value.trim();
   document.getElementById('home-nombre').textContent = userName;
   document.getElementById('modulos-wrap').style.display = 'block';
   // Si es formadora, mostrar badge
@@ -1099,12 +1111,35 @@ function finishQuiz() {
     saveProgress(userName, prog);
   }
 
+  // Preguntas falladas
+  const falladas = userAnswers
+    .filter(a => !a.correct)
+    .map(a => {
+      const q = PREGUNTAS[currentModule][a.q];
+      return 'P: ' + (q ? q.texto.substring(0,60).replace(/\n/g,' ') : '?') +
+             ' | Respondió: ' + (q && q.opciones ? q.opciones[a.answer] || a.answer : a.answer);
+    })
+    .join(' || ');
+
+  // Estado según umbral 85%
+  const estado = pct >= 85 ? 'Aprobado' : 'No aprobado';
+
+  // Cambios de pestaña y pérdidas de foco (si se detectaron)
+  const cambiosPestana = window._tabChanges || 0;
+  const perdidasFoco   = window._focusLosses || 0;
+
   const payload = {
     nombre: userName,
+    correo: userCorreo,
     modulo: mod.label,
     moduloId: currentModule,
     score, total, pct,
+    estado,
     tiempo: timeStr,
+    tiempoSeg: timerElapsed,
+    cambiosPestana,
+    perdidasFoco,
+    preguntasFalladas: falladas,
     fecha: new Date().toLocaleString('es-CO')
   };
   fetch(SHEETS_URL, {
