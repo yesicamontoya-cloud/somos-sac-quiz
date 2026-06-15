@@ -1159,6 +1159,7 @@ function switchTab(tabId) {
   document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
   if (tabId === 'tab-stats') buildStats();
+  if (tabId === 'tab-questions') renderQEditor(currentQEditor);
 }
 
 // ════════════════════════════════════════════════════════════
