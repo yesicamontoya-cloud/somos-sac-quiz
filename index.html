@@ -332,7 +332,7 @@ tr:last-child td { border-bottom: none; }
     <!-- TAB: RESULTADOS -->
     <div id="tab-results" class="panel-section active">
       <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
-        <button class="panel-refresh" onclick="loadResults()">🔄 Actualizar</button>
+        <button class="panel-refresh" onclick="allResults=[]; loadResults()">🔄 Actualizar</button>
         <select id="filter-module" style="padding:8px 12px;border:1.5px solid #D4D4D4;border-radius:6px;font-size:13px;" onchange="loadResults()">
           <option value="">Todos los módulos</option>
           <option value="dia1">Quiz Día 1–2</option>
@@ -344,7 +344,7 @@ tr:last-child td { border-bottom: none; }
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>Nombre</th><th>Correo</th><th>Módulo</th><th>Puntaje</th><th>Estado</th><th>Tiempo</th><th>⚠️ Pestañas</th><th>Fecha</th>
+            <th>Nombre</th><th>Correo</th><th>Módulo</th><th>Puntaje</th><th>Estado</th><th>Tiempo</th><th>⚠️ Pestañas</th><th>Fecha</th><th>Falladas</th>
           </tr></thead>
           <tbody id="results-tbody"><tr><td colspan="5" style="text-align:center;color:#A0A0A0;padding:24px;">Cargando...</td></tr></tbody>
         </table>
@@ -594,8 +594,11 @@ function renderModulos() {
     const prevForBadge = idx === 0 ? null : prog[MODULOS[idx-1].id];
     const prevApproved = idx === 0 || (prevForBadge && prevForBadge.pct >= 85);
     if (locked) badgeHtml = '<span class="modulo-badge locked-badge">🔒 Requiere 85% en módulo anterior</span>';
-    else if (mProg && mProg.pct >= 85) badgeHtml = '<span class="modulo-badge">✅ Aprobado</span>';
-    else if (mProg && mProg.pct < 85) badgeHtml = '<span class="modulo-badge pending">⚠️ ' + mProg.pct + '% — Intenta de nuevo para mejorar</span>';
+    const intentos = mProg ? (mProg.intentos || 1) : 0;
+    const esRep = intentos > 1;
+    if (mProg && mProg.pct >= 85) badgeHtml = '<span class="modulo-badge">✅ Aprobado' + (intentos > 1 ? ' · ' + intentos + ' intentos' : '') + '</span>';
+    else if (mProg && mProg.pct < 85 && esRep) badgeHtml = '<span class="modulo-badge" style="background:#FFE5CC;color:#7B3F00;">🔁 Repechaje · intento ' + intentos + ' · ' + mProg.pct + '%</span>';
+    else if (mProg && mProg.pct < 85) badgeHtml = '<span class="modulo-badge pending">⚠️ ' + mProg.pct + '% · intento ' + intentos + ' — Intenta de nuevo</span>';
     else badgeHtml = '<span class="modulo-badge pending">Pendiente</span>';
 
     let rightHtml = '';
@@ -1106,10 +1109,14 @@ function finishQuiz() {
 
   // Guardar progreso local
   const prog = getProgress(userName);
+  const prevIntento = prog[currentModule] ? (prog[currentModule].intentos || 1) : 0;
+  const nuevoIntento = prevIntento + 1;
   if (!prog[currentModule] || pct > prog[currentModule].pct) {
-    prog[currentModule] = { pct, score, total, time: timeStr };
-    saveProgress(userName, prog);
+    prog[currentModule] = { pct, score, total, time: timeStr, intentos: nuevoIntento };
+  } else {
+    prog[currentModule].intentos = nuevoIntento;
   }
+  saveProgress(userName, prog);
 
   // Preguntas falladas
   const falladas = userAnswers
@@ -1140,7 +1147,8 @@ function finishQuiz() {
     cambiosPestana,
     perdidasFoco,
     preguntasFalladas: falladas,
-    fecha: new Date().toLocaleString('es-CO')
+    fecha: new Date().toLocaleString('es-CO'),
+    intento: nuevoIntento
   };
   fetch(SHEETS_URL, {
     method: 'POST', mode: 'no-cors',
@@ -1263,20 +1271,26 @@ function renderResultsTable(data) {
   tbody.innerHTML = data.map(r => {
     const pct = parseInt(r.pct) || 0;
     const cls = pct >= 85 ? 'pct-high' : pct >= 60 ? 'pct-mid' : 'pct-low';
-    const estadoCls = pct >= 85 ? 'color:#155724' : 'color:#721C24';
+    const esRepechaje = (parseInt(r.intento)||1) > 1;
+    const estadoColor = pct >= 85 ? '#155724' : esRepechaje ? '#7B3F00' : '#721C24';
+    const estadoBg    = pct >= 85 ? '#D4EDDA'  : esRepechaje ? '#FFE5CC'  : '#F8D7DA';
+    const estadoTxt   = pct >= 85 ? (r.estado||'Aprobado ✅') : esRepechaje ? '🔁 Repechaje' : (r.estado||'No aprobado ❌');
     const pestanas = parseInt(r.pestanas) || 0;
     const pestanaFlag = pestanas > 2
       ? `<span style="color:#DC3545;font-weight:bold;">⚠️ ${pestanas}</span>`
       : pestanas > 0 ? `<span style="color:#856404;">${pestanas}</span>` : `<span style="color:#A0A0A0;">0</span>`;
     return `<tr>
       <td><strong>${r.nombre || '—'}</strong></td>
-      <td style="color:#6B6B6B;font-size:12px;">${r.correo || '—'}</td>
+      <td style="color:#6B6B6B;font-size:12px;">${r.correo && r.correo !== r.nombre ? r.correo : '<span style="color:#D4D4D4">sin correo</span>'}</td>
       <td style="font-size:12px;">${r.modulo || '—'}</td>
       <td><span class="pct-pill ${cls}">${pct}%</span> <span style="color:#A0A0A0;font-size:11px;">${r.score||0}/${r.total||0}</span></td>
-      <td style="font-size:12px;${estadoCls}">${r.estado || '—'}</td>
+      <td><span style="font-size:12px;font-weight:bold;color:${estadoColor};background:${estadoBg};padding:2px 8px;border-radius:10px;">${estadoTxt}</span></td>
       <td style="font-size:12px;color:#6B6B6B;">${formatTiempo(r.tiempo)}</td>
       <td style="text-align:center;">${pestanaFlag}</td>
       <td style="color:#A0A0A0;font-size:11px;">${r.fecha || '—'}</td>
+      <td style="font-size:11px;max-width:200px;">
+        ${r.falladas ? `<details><summary style="cursor:pointer;color:#856404;">Ver (${(r.falladas.split('||').length)} falladas)</summary><div style="margin-top:4px;color:#6B6B6B;white-space:normal;">${r.falladas.replace(/\|\|/g,'<br><br>')}</div></details>` : '<span style="color:#D4D4D4">—</span>'}
+      </td>
     </tr>`;
   }).join('');
 }
@@ -1290,7 +1304,7 @@ function formatTiempo(t) {
 }
 
 function buildStats() {
-  if (!allResults.length) { loadResults(); return; }
+  if (!allResults || !allResults.length) { loadResults(); setTimeout(buildStats, 1500); return; }
   const total = allResults.length;
   const avg = Math.round(allResults.reduce((s,r) => s + (parseInt(r.pct)||0), 0) / total);
   const pass = allResults.filter(r => parseInt(r.pct) >= 85).length;
