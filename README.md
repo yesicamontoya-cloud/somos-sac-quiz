@@ -5,14 +5,28 @@ Portal unificado de evaluaciones para el proceso de formación inicial de analis
 ## Archivos
 
 ```
-index.html              → Portal principal (lista de evaluaciones)
-quiz-dias-1-2.html      → Quiz Días 1 y 2 (5 preguntas, diagnóstico)
-quiz-dia-3.html         → Quiz Día 3 (5 preguntas, diagnóstico)
-certificacion-sac.html  → Certificación SAC Día 4 (25 preguntas, meta 85%)
-quiz-styles.css         → Estilos compartidos
-quiz-engine.js          → Motor de quiz compartido
-README.md               → Este archivo
+index.html                → Portal principal: todos los módulos, preguntas y panel de formadora
+quiz-dias-1-2.html, quiz-dia-3.html, certificacion-sac.html, quiz-engine.js, quiz-styles.css
+                          → Versión anterior por archivos (ya no se usa en el portal principal)
 ```
+
+## Módulos y nota mínima
+
+| Módulo | Preguntas | Tiempo | Nota mínima |
+|---|---|---|---|
+| Quiz Día 1–2 | 7 | 10 min | 85% para desbloquear el siguiente |
+| Quiz Día 3 | 8 | 10 min | 85% para desbloquear el siguiente |
+| Certificación SAC | 25 | 60 min | 85% |
+| Certificación Retención | 20 | 45 min | 95% (se habilita al aprobar la Certificación SAC) |
+
+La nota de cada módulo está en `MODULOS` (campo `umbral`) dentro de `index.html`.
+
+## Editar preguntas sin tocar código
+
+1. El Apps Script v5 (con guardado de preguntas) debe estar implementado y con la propiedad `CLAVE_FORMADORA` configurada. El código no se publica en este repositorio porque contiene el ID de la Sheet.
+2. Entra al panel de formadora → **Editar preguntas** → cambia lo que necesites → **Guardar preguntas**.
+3. Los cambios quedan en la pestaña **Preguntas** de la Sheet y todos los analistas los ven al volver a abrir el portal.
+4. **Descargar respaldo** guarda una copia de todas las preguntas en tu computador.
 
 ## Cómo publicar en GitHub Pages
 
