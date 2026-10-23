@@ -337,7 +337,8 @@ tr:last-child td { border-bottom: none; }
           <option value="">Todos los módulos</option>
           <option value="dia1">Quiz Día 1–2</option>
           <option value="dia3">Quiz Día 3</option>
-          <option value="cert">Certificación</option>
+          <option value="cert">Certificación SAC</option>
+          <option value="ret">Certificación Retención</option>
         </select>
         <span id="last-updated" style="font-size:12px;color:#A0A0A0;margin-left:auto;"></span>
       </div>
@@ -357,12 +358,12 @@ tr:last-child td { border-bottom: none; }
       <div class="stat-cards" id="stat-cards">
         <div class="stat-card"><div class="sv" id="st-total">—</div><div class="sl">Intentos totales</div></div>
         <div class="stat-card"><div class="sv" id="st-avg">—</div><div class="sl">Promedio general</div></div>
-        <div class="stat-card"><div class="sv" id="st-pass">—</div><div class="sl">≥ 70% (aprobados)</div></div>
+        <div class="stat-card"><div class="sv" id="st-pass">—</div><div class="sl">Intentos aprobados</div></div>
         <div class="stat-card"><div class="sv" id="st-best">—</div><div class="sl">Mejor puntaje</div></div>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Analista</th><th>Quiz D1-2</th><th>Quiz D3</th><th>Certificación</th><th>Estado</th></tr></thead>
+          <thead><tr><th>Analista</th><th>Quiz D1-2</th><th>Quiz D3</th><th>Cert. SAC</th><th>Cert. Retención</th><th>Estado</th></tr></thead>
           <tbody id="stats-tbody"><tr><td colspan="5" style="text-align:center;color:#A0A0A0;padding:24px;">Cargando...</td></tr></tbody>
         </table>
       </div>
@@ -374,17 +375,19 @@ tr:last-child td { border-bottom: none; }
       <div class="module-selector">
         <button class="ms-btn active" onclick="switchQModule('dia1', this)">Quiz Día 1–2</button>
         <button class="ms-btn" onclick="switchQModule('dia3', this)">Quiz Día 3</button>
-        <button class="ms-btn" onclick="switchQModule('cert', this)">Certificación</button>
+        <button class="ms-btn" onclick="switchQModule('cert', this)">Certificación SAC</button>
+        <button class="ms-btn" onclick="switchQModule('ret', this)">Certificación Retención</button>
       </div>
       <div class="sheet-sync-row">
         <input type="text" id="sheet-url-input" placeholder="URL del Apps Script" value="https://script.google.com/macros/s/AKfycbwWarepYP4vbb_rybGw2WM3kebgOyl5No0UjsIUBt70xOtKg8CD9jwLvBJJMz_wHOs0/exec">
         <button class="btn-sync-sheet" onclick="syncFromSheet()">📥 Importar desde Sheet</button>
       </div>
       <p class="sync-note">💡 La Sheet debe tener columnas: <strong>modulo · texto · opcionA · opcionB · opcionC · opcionD · correcta (0-3) · explicacion · nivel</strong><br>
-      Los cambios que guardes aquí se aplican a todos los analistas inmediatamente.</p>
+      Los cambios se guardan en la Sheet (pestaña <strong>Preguntas</strong>) y los analistas los ven al volver a abrir el portal.</p>
       <br>
       <div class="q-editor-list" id="q-editor-list"></div>
       <button class="btn-save-questions" onclick="saveQuestions()">💾 Guardar preguntas</button>
+        <button class="btn-save-questions" style="background:#fff;color:#000;border:1.5px solid #000;margin-left:8px;" onclick="descargarRespaldo()">⬇️ Descargar respaldo</button>
       <div class="save-msg" id="save-msg">✅ Preguntas guardadas correctamente.</div>
     </div>
   </div>
@@ -409,13 +412,22 @@ tr:last-child td { border-bottom: none; }
 // CONFIGURACIÓN
 // ════════════════════════════════════════════════════════════
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwWarepYP4vbb_rybGw2WM3kebgOyl5No0UjsIUBt70xOtKg8CD9jwLvBJJMz_wHOs0/exec';
-const FORMADORA_PWD = 'somos';
+// La clave ya no se guarda en texto plano: solo su huella SHA-256.
+// Para cambiarla: abre https://emn178.github.io/online-tools/sha256.html, escribe la nueva clave y pega aquí el resultado.
+const FORMADORA_PWD_HASH = '21920e2b52bb3ac3c12fbf4b2e8856df3e0e11749c879448c261705b2a54fbf9';
+async function sha256(t) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
+}
 
 const MODULOS = [
   { id:'dia1', label:'Quiz Día 1 – 2', desc:'7 preguntas · Identidad · Herramientas · Planes · Protección de Datos', icon:'📘', color:'color-blue', timerMin:10, preguntas:'dia1' },
   { id:'dia3', label:'Quiz Día 3', desc:'8 preguntas · Procesos SAC · Facturación · Suspensión · Traslados', icon:'📙', color:'color-yellow', timerMin:10, preguntas:'dia3' },
-  { id:'cert', label:'Certificación SAC', desc:'25 preguntas · Todos los temas · 60 minutos', icon:'🏆', color:'color-green', timerMin:60, preguntas:'cert' },
+  { id:'cert', label:'Certificación SAC', desc:'25 preguntas · Todos los temas · 60 minutos', icon:'🏆', color:'color-green', timerMin:60, preguntas:'cert', umbral:85 },
+  { id:'ret', label:'Certificación Retención', desc:'20 preguntas · SPIN · Causa raíz · Estrategia · Cierre · 45 minutos', icon:'🤝', color:'color-blue', timerMin:45, preguntas:'ret', umbral:95 },
 ];
+// Nota mínima por módulo (los quizzes diagnósticos usan 85% solo para desbloquear el siguiente)
+function umbralDe(id) { const m = MODULOS.find(x => x.id === id); return (m && m.umbral) || 85; }
 
 // ════════════════════════════════════════════════════════════
 // BANCO DE PREGUNTAS (editable desde panel)
@@ -443,6 +455,31 @@ let PREGUNTAS = {
     {tipo:'seleccion',texto:'CASO: Laura solicita un traslado de servicio. Al validar, hay cobertura en la nueva dirección, pero la suscripción aparece en estado Suspendido por factura pendiente. ¿Qué debe hacer el analista?',opciones:["Informar al cliente que primero debe realizar el pago de la factura pendiente. Una vez la suscripción esté en estado Activo, se podrá continuar con la programación del traslado.","Informar al cliente que se puede agendar el traslado, pero que debe realizar el pago antes de la visita técnica.","Informar al cliente que se puede crear la solicitud de traslado y que el pago pendiente se validará durante la programación.","Informar al cliente que el traslado puede quedar creado, pero no se ejecutará hasta que Back Office confirme el pago."],correcta:0,explicacion:'El traslado solo puede gestionarse si la suscripción está en estado Activo. Si el cliente está Suspendido por deuda, primero debe pagar la factura pendiente y esperar que el servicio quede activo. Solo después se podrá programar el traslado.'},
     {tipo:'seleccion',texto:'CASO: María solicita suspender su servicio durante 30 días. Suscripción ACTIVA, ya pagó varias facturas, usó suspensión de 60 días hace 4 meses. Quiere que empiece hoy. ¿Cuál es la acción correcta?',opciones:["Informar que la solicitud no procede porque ya utilizó este beneficio durante el año actual","Crear la suspensión por 30 días porque cumple el tiempo mínimo y la cuenta está activa.","Escalar a backoffice para la aprobación","Crear la suspensión y aclarar que iniciará en la próxima fecha de corte."],correcta:0,explicacion:'La suspensión temporal solo puede utilizarse una vez por año.'},
     {tipo:'seleccion',texto:'CASO: Ricardo compró el apartamento 804. El servicio aún aparece a nombre de Felipe Torres, quien ya no vive allí y no tiene contacto con Ricardo. ¿Qué debe hacer el analista?',opciones:["Intentar contactar a Felipe Torres usando los datos registrados en Artemis. Sin autorización del titular actual, el cambio de titularidad no puede completarse.","Cancelar el servicio de Felipe e iniciar una instalación nueva a nombre de Ricardo.","Solicitar a Ricardo la escritura de compraventa como reemplazo de la autorización del titular.","Actualizar directamente el nombre en Artemis con los datos de Ricardo por cambio de propiedad."],correcta:0,explicacion:'El cambio de titularidad requiere autorización del titular actual. Si no se logra obtener su autorización, el trámite no puede completarse. La escritura de compraventa no reemplaza la autorización del titular.'},
+  ],
+
+  // ── CERTIFICACIÓN RETENCIÓN — 20 preguntas · nota mínima 95% ──
+  // (preguntas de la Certificación de Retención)
+  ret: [
+    {"tipo":"seleccion","texto":"¿Qué significa retener en Somos?","opciones":["Lograr que el cliente no cancele, ofreciendo el mayor descuento disponible.","Insistir hasta que el cliente acepte quedarse.","Entender la causa real de salida y construir una alternativa que tenga sentido; si no existe, cerrar sin fricción.","Explicar todos los beneficios de Somos antes de escuchar al cliente."],"correcta":2,"explicacion":"Retener no es frenar una salida a cualquier costo: es entender la causa real y construir una alternativa clara. Si no hay oportunidad real, se cierra bien."},
+    {"tipo":"seleccion","texto":"¿Cuál es la regla central del modelo de Retención Somos?","opciones":["Primero sondear, después ofrecer.","Primero ofrecer, después sondear.","Ofrecer siempre un beneficio al inicio para generar confianza.","Procesar el retiro y luego preguntar el motivo."],"correcta":0,"explicacion":"No se ofrece un beneficio hasta saber qué problema estamos intentando resolver."},
+    {"tipo":"seleccion","texto":"En SPIN, ¿qué buscas con las preguntas de Implicación?","opciones":["Conocer el plan y el valor que paga el cliente.","Ofrecer la alternativa de retención.","Confirmar los datos del titular.","Saber cómo le afecta el problema, desde cuándo y qué no quiere que vuelva a pasar."],"correcta":3,"explicacion":"La Implicación ayuda a entender el impacto del problema sin presionar. La situación se revisa antes en Artemis y la alternativa llega después."},
+    {"tipo":"seleccion","texto":"Antes de preguntarle algo al cliente, ¿qué debe hacer el analista?","opciones":["Preguntarle todo desde el inicio para no perder información.","Revisar en Artemis el plan, la factura, los pagos, las fallas, los beneficios y los contactos previos.","Ofrecer un beneficio para que el cliente se calme.","Transferir a Soporte."],"correcta":1,"explicacion":"El cliente no debería repetir lo que ya está en Artemis. Antes de preguntar, se revisa."},
+    {"tipo":"seleccion","texto":"Un cliente dice: “Está muy caro”. ¿Cuál es la mejor primera respuesta?","opciones":["“Le puedo dar un 20% de descuento.”","“Es el precio del plan, no se puede cambiar.”","“Entiendo. ¿Lo que más te pesa es el valor o hay algo del servicio que tampoco te está funcionando?”","“¿Cuánto quiere pagar?”"],"correcta":2,"explicacion":"“Está caro” es el inicio del sondeo, no el diagnóstico. Primero se entiende si es el valor, la capacidad de pago o la experiencia."},
+    {"tipo":"seleccion","texto":"¿Qué es la “escalera de descuentos” y por qué se evita?","opciones":["Un beneficio que aumenta cada mes que el cliente se queda.","El proceso para pedir autorización de un descuento.","Una campaña de recuperación vigente.","Ofrecer 10%, luego 20%, luego 30% hasta que el cliente acepte; se evita porque reemplaza el diagnóstico."],"correcta":3,"explicacion":"Subir el descuento hasta que el cliente acepte no resuelve la causa real. El beneficio acompaña una estrategia; no la reemplaza."},
+    {"tipo":"seleccion","texto":"¿Cuál es el papel de Retención frente a una falla técnica?","opciones":["Reconocer si la falla es la causa de la salida, validar lo básico, documentar y transferir a Soporte.","Diagnosticar y resolver la falla como Soporte N1.","Ignorar la falla y enfocarse en el beneficio.","Procesar el retiro de inmediato."],"correcta":0,"explicacion":"Retención no da soporte técnico: reconoce la falla para no intentar retener un problema que primero hay que resolver."},
+    {"tipo":"seleccion","texto":"¿Cómo se debe invitar al cliente a la encuesta al cerrar?","opciones":["“Por favor califícame con la máxima puntuación.”","No mencionarla nunca.","“Te llegará una encuesta sobre tu experiencia. Tu opinión nos ayuda a mejorar.”","“Si me calificas bien, te puedo ayudar con un beneficio.”"],"correcta":2,"explicacion":"La encuesta mide la experiencia. Nunca se induce la calificación."},
+    {"tipo":"seleccion","texto":"Un cliente dice que otro operador le ofrece internet + móvil. ¿Qué haces primero?","opciones":["Decirle que el otro operador tiene fallas.","Preguntar qué es lo que más le sirve de esa oferta: el combo, el móvil o el valor total.","Enumerar todos los beneficios de Somos.","Ofrecer el mayor descuento disponible."],"correcta":1,"explicacion":"La competencia se entiende, no se ataca. Hay que saber qué valora el cliente; si Somos no cubre lo principal, no se vende humo."},
+    {"tipo":"seleccion","texto":"¿Cuándo debes dejar de intentar retener?","opciones":["Nunca: siempre hay que insistir.","Solo cuando el supervisor lo indique.","Cuando el cliente rechaza el primer beneficio.","Cuando el cliente se muda a un lugar sin cobertura, ya no necesita el servicio o su decisión es definitiva sin oportunidad real."],"correcta":3,"explicacion":"Ser bueno en Retención también es saber cerrar sin fricción: aceptar la decisión, explicar el proceso y registrar la causa real."},
+    {"tipo":"multi","texto":"¿Qué debe quedar confirmado al cerrar una retención? Selecciona TODAS las correctas.","opciones":["Que calificará la encuesta con la máxima nota.","Qué problema quedó atendido.","Qué aceptó el cliente.","Cuánto pagará y por cuánto tiempo.","Qué debe esperar después."],"correctas":[1,2,3,4],"explicacion":"Un buen cierre deja claro el problema atendido, lo aceptado, el valor, la vigencia y el próximo paso. La encuesta nunca se induce."},
+    {"tipo":"multi","texto":"¿Qué se registra en una gestión de Retención? Selecciona TODAS las correctas.","opciones":["La causa real.","El sondeo realizado.","Solo el motivo que dijo el cliente al inicio.","La alternativa ofrecida.","El resultado y la próxima acción."],"correctas":[0,1,3,4],"explicacion":"Se registra la causa real (no solo la primera frase), el sondeo, la alternativa, el resultado y la próxima acción."},
+    {"tipo":"multi","texto":"¿Cuáles de estas son opciones reales que el analista puede revisar antes de un retiro? Selecciona TODAS las correctas.","opciones":["Suspensión temporal, si cumple las condiciones.","Prometer un precio especial sin validarlo.","Traslado, si hay cobertura en la nueva dirección.","Cambio de titular, con la validación correcta.","Cambio de plan."],"correctas":[0,2,3,4],"explicacion":"Son opciones reales según las condiciones vigentes. Nunca se promete algo que no aplica ni se improvisan precios."},
+    {"tipo":"multi","texto":"¿Qué validaciones básicas hace Retención cuando el cliente reporta fallas? Selecciona TODAS las correctas.","opciones":["Estado del servicio.","Router encendido o apagado.","Energía y conexión.","Diagnóstico técnico completo de la red.","Lectura básica en CPE Doctor."],"correctas":[0,1,2,4],"explicacion":"Retención valida lo básico y documenta. El diagnóstico técnico corresponde a Soporte."},
+    {"tipo":"sustentacion","texto":"CASO: Un cliente escribe: “Desde julio tengo fallas. Funciona un rato y vuelve a molestar. Ya pedí otro operador.” ¿Cuál es la mejor decisión?","opciones":["Ofrecerle un descuento para que pruebe un mes más.","Procesar el retiro sin preguntar más.","Pedirle que reinicie el router y vuelva a escribir.","Preguntar si resolver la falla evitaría el retiro y, si es así, escalar a Soporte con todo el historial y dejar seguimiento."],"correcta":3,"explicacion":"La causa es una falla repetida y la pérdida de confianza. La solución debe ser técnica y creíble, sin hacerle repetir la historia."},
+    {"tipo":"sustentacion","texto":"CASO: “Me voy para Malambo y aquí no queda nadie usando el servicio.” ¿Qué haces?","opciones":["Validar si es temporal, si hay cobertura para un traslado o si alguien puede quedarse con el servicio; si no, facilitar el retiro.","Ofrecer un descuento para que no cancele.","Insistir con beneficios hasta que acepte.","Decirle que debe pagar una penalidad."],"correcta":0,"explicacion":"Si no hay cobertura ni alguien que asuma el servicio, no hay oportunidad real. Retener con criterio también es dejar ir al cliente con buena experiencia."},
+    {"tipo":"sustentacion","texto":"CASO: “Antes pagaba $48.000 y ahora me llegó más alto. Me ofrecieron un descuento y ya no aparece.” ¿Cuál es la mejor respuesta?","opciones":["“No aparece en el sistema; envíeme pruebas.”","Aplicar un descuento sin explicar la factura.","Revisar el historial, explicar qué cambió en la factura y validar una alternativa clara.","Transferir a Cobranzas."],"correcta":2,"explicacion":"Hay confusión, una promesa anterior y una mala experiencia. Primero se aclara la factura; después se negocia."},
+    {"tipo":"sustentacion","texto":"CASO: “Casi no usamos la TV y cuando la usamos falla.” ¿Qué pregunta te ayuda más?","opciones":["“¿Entonces cancelamos todo el servicio?”","“Si la TV funcionara bien, ¿les serviría o igual prefieren no tenerla?”","“¿Por qué no la usan?”","“¿Quiere un descuento en la TV?”"],"correcta":1,"explicacion":"La pregunta separa la falla del poco uso. Si no la necesitan, se puede revisar retirar solo ese adicional y mantener el internet."},
+    {"tipo":"sustentacion","texto":"CASO: “Quiero el descuento o me voy.” ¿Cuál es la mejor respuesta?","opciones":["“Le aplico el 30% de una vez.”","“No damos descuentos.”","“¿Cuánto descuento necesita para quedarse?”","“Te escucho. Antes de revisar beneficios, ¿lo que buscas es bajar el valor mensual o hay algo del servicio que quisieras cambiar?”"],"correcta":3,"explicacion":"No se premia la amenaza de forma automática. Primero se entiende qué quiere resolver; una causa principal lleva a una estrategia principal."},
+    {"tipo":"sustentacion","texto":"CASO: “Ya lo decidí, solo quiero cancelar.” ¿Qué haces?","opciones":["Confirmar si hay algo puntual que, si se resuelve, haría que valga la pena continuar; si no, explicar el proceso de retiro y registrar la causa real.","Preguntar “¿está seguro?” varias veces.","Procesar el retiro sin decir nada más.","Ofrecer todos los beneficios disponibles."],"correcta":0,"explicacion":"Se valida una sola vez si existe una oportunidad real, sin presionar. Si no la hay, se cierra sin fricción y con buena experiencia."},
   ],
 
   // ── CERTIFICACIÓN SAC — 25 preguntas ──
@@ -479,6 +516,27 @@ let PREGUNTAS = {
     {tipo:'sustentacion',texto:'CASO: Un cliente escribe: "Quiero pagar hoy. Necesito saber cuánto debo y si puedo hacer una transferencia a una cuenta bancaria de Somos."\n\n¿Cuál es la respuesta más completa y correcta?',opciones:["Informarle el valor a pagar, enviarle un número de cuenta bancaria y decirle que envíe el comprobante cuando haga la transferencia.","Enviarle el link de pago, indicarle el valor total, fecha de corte, servicios incluidos y periodo cubierto. Además aclarar que Somos no maneja números bancarios para transferencias.","Decirle que espere el débito automático tres días antes del corte porque todos los clientes pagan de forma tokenizada.","Indicarle que puede pagar en cualquier corresponsal con solo dar su cédula."],correcta:1,explicacion:'Para un usuario no tokenizado el analista debe entregar información completa del pago: fecha de pago, fecha de corte, valor, servicios incluidos y periodo cubierto. Además orientar el pago por el link correspondiente y aclarar que no se manejan números bancarios para transferencias.'},
   ]
 };
+
+// Carga las preguntas guardadas en la Sheet (si existen). Si falla, usa las de este archivo.
+function cargarPreguntasDesdeSheet() {
+  fetch(SHEETS_URL + '?action=getQuestions')
+    .then(r => r.json())
+    .then(data => {
+      if (!data || !data.preguntas) return;
+      Object.keys(data.preguntas).forEach(mod => {
+        const arr = data.preguntas[mod];
+        if (Array.isArray(arr) && arr.length) PREGUNTAS[mod] = arr;
+      });
+    })
+    .catch(() => {});
+}
+cargarPreguntasDesdeSheet();
+
+function descargarRespaldo() {
+  const blob = new Blob([JSON.stringify(PREGUNTAS, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'preguntas_respaldo_' + new Date().toISOString().slice(0,10) + '.json'; a.click();
+}
 
 // ════════════════════════════════════════════════════════════
 // ESTADO
@@ -558,7 +616,7 @@ function syncProgressFromSheet(nombre) {
         const pct = parseInt(r.pct) || 0;
         const mid = (r.moduloId || '').toLowerCase();
         // Solo actualizar si el pct guardado en Sheet es mejor que el local
-        if (pct >= 85 && (!prog[mid] || pct > (prog[mid].pct || 0))) {
+        if (pct >= umbralDe(mid) && (!prog[mid] || pct > (prog[mid].pct || 0))) {
           prog[mid] = { pct, score: parseInt(r.score)||0, total: parseInt(r.total)||0, time: r.tiempo || '' };
           updated = true;
         }
@@ -579,7 +637,7 @@ function renderModulos() {
   MODULOS.forEach((m, idx) => {
     // Bloqueado solo si el módulo anterior no tiene 85%+ Y el analista nunca lo ha intentado
     const prevProg = idx === 0 ? null : prog[MODULOS[idx-1].id];
-    const prevDone = idx === 0 || (prevProg && prevProg.pct >= 85);
+    const prevDone = idx === 0 || (prevProg && prevProg.pct >= umbralDe(MODULOS[idx-1].id));
     const mProg = prog[m.id];
     const yaIntentado = !!mProg; // ya lo intentó — siempre puede reintentar
     const esFormadora = sessionStorage.getItem('sac_formadora') === '1';
@@ -587,18 +645,18 @@ function renderModulos() {
     const pct = mProg ? mProg.pct : null;
 
     const card = document.createElement('div');
-    card.className = 'modulo-card' + (locked ? ' locked' : '') + (mProg && mProg.pct >= 85 ? ' done' : '');
+    card.className = 'modulo-card' + (locked ? ' locked' : '') + (mProg && mProg.pct >= umbralDe(m.id) ? ' done' : '');
     if (!locked) card.onclick = () => startModule(m.id);
 
     let badgeHtml = '';
     const prevForBadge = idx === 0 ? null : prog[MODULOS[idx-1].id];
-    const prevApproved = idx === 0 || (prevForBadge && prevForBadge.pct >= 85);
-    if (locked) badgeHtml = '<span class="modulo-badge locked-badge">🔒 Requiere 85% en módulo anterior</span>';
+    const prevApproved = idx === 0 || (prevForBadge && prevForBadge.pct >= umbralDe(MODULOS[idx-1].id));
+    if (locked) badgeHtml = '<span class="modulo-badge locked-badge">🔒 Requiere ' + umbralDe(MODULOS[idx-1].id) + '% en el módulo anterior</span>';
     const intentos = mProg ? (mProg.intentos || 1) : 0;
     const esRep = intentos > 1;
-    if (mProg && mProg.pct >= 85) badgeHtml = '<span class="modulo-badge">✅ Aprobado' + (intentos > 1 ? ' · ' + intentos + ' intentos' : '') + '</span>';
-    else if (mProg && mProg.pct < 85 && esRep) badgeHtml = '<span class="modulo-badge" style="background:#FFE5CC;color:#7B3F00;">🔁 Repechaje · intento ' + intentos + ' · ' + mProg.pct + '%</span>';
-    else if (mProg && mProg.pct < 85) badgeHtml = '<span class="modulo-badge pending">⚠️ ' + mProg.pct + '% · intento ' + intentos + ' — Intenta de nuevo</span>';
+    if (mProg && mProg.pct >= umbralDe(m.id)) badgeHtml = '<span class="modulo-badge">✅ Aprobado' + (intentos > 1 ? ' · ' + intentos + ' intentos' : '') + '</span>';
+    else if (mProg && mProg.pct < umbralDe(m.id) && esRep) badgeHtml = '<span class="modulo-badge" style="background:#FFE5CC;color:#7B3F00;">🔁 Repechaje · intento ' + intentos + ' · ' + mProg.pct + '%</span>';
+    else if (mProg && mProg.pct < umbralDe(m.id)) badgeHtml = '<span class="modulo-badge pending">⚠️ ' + mProg.pct + '% · intento ' + intentos + ' — Intenta de nuevo</span>';
     else badgeHtml = '<span class="modulo-badge pending">Pendiente</span>';
 
     let rightHtml = '';
@@ -1129,7 +1187,7 @@ function finishQuiz() {
     .join(' || ');
 
   // Estado según umbral 85%
-  const estado = pct >= 85 ? 'Aprobado' : 'No aprobado';
+  const estado = pct >= umbralDe(currentModule) ? 'Aprobado' : 'No aprobado';
 
   // Cambios de pestaña y pérdidas de foco (si se detectaron)
   const cambiosPestana = window._tabChanges || 0;
@@ -1165,10 +1223,11 @@ function showResultScreen(pct, timeStr, syncMsg, ok) {
   document.getElementById('res-name').textContent = userName;
   document.getElementById('res-time').textContent = '⏱ Tiempo utilizado: ' + timeStr;
   let sub = '';
-  if (pct >= 90) sub = '🏅 ¡Excelente! Dominio sólido del módulo. Puedes continuar al siguiente.';
-  else if (pct >= 85) sub = '✅ ¡Aprobado! Alcanzaste el mínimo requerido. Puedes continuar al siguiente módulo.';
-  else if (pct >= 70) sub = '⚠️ ' + pct + '% — Necesitas al menos 85% para desbloquear el siguiente módulo. Puedes reintentar este cuando quieras.';
-  else sub = '❌ ' + pct + '% — Necesitas al menos 85% para avanzar. Repasa el material y vuelve a intentarlo — los reintentos son ilimitados.';
+  const u = umbralDe(currentModule);
+  if (pct >= u && pct >= 95) sub = '🏅 ¡Excelente! Dominio sólido del módulo.';
+  else if (pct >= u) sub = '✅ ¡Aprobado! Alcanzaste el mínimo requerido (' + u + '%).';
+  else if (pct >= 70) sub = '⚠️ ' + pct + '% — Necesitas al menos ' + u + '% para aprobar. Puedes reintentar cuando quieras.';
+  else sub = '❌ ' + pct + '% — Necesitas al menos ' + u + '% para aprobar. Repasa el material y vuelve a intentarlo.';
   document.getElementById('res-sub').textContent = sub;
   const syncDiv = document.getElementById('sync-status');
   syncDiv.textContent = syncMsg;
@@ -1199,9 +1258,10 @@ function openLoginModal() {
   setTimeout(() => document.getElementById('modal-pwd').focus(), 100);
 }
 function closeLoginModal() { document.getElementById('login-modal').classList.remove('open'); }
-function checkLogin() {
+async function checkLogin() {
   const pwd = document.getElementById('modal-pwd').value;
-  if (pwd === FORMADORA_PWD) {
+  if ((await sha256(pwd)) === FORMADORA_PWD_HASH) {
+    window._clave = pwd;
     closeLoginModal();
     sessionStorage.setItem('sac_formadora', '1');
     showScreen('screen-panel');
@@ -1307,7 +1367,7 @@ function buildStats() {
   if (!allResults || !allResults.length) { loadResults(); setTimeout(buildStats, 1500); return; }
   const total = allResults.length;
   const avg = Math.round(allResults.reduce((s,r) => s + (parseInt(r.pct)||0), 0) / total);
-  const pass = allResults.filter(r => parseInt(r.pct) >= 85).length;
+  const pass = allResults.filter(r => (r.estado||'').toLowerCase().startsWith('aprobado')).length;
   const best = Math.max(...allResults.map(r => parseInt(r.pct)||0));
   document.getElementById('st-total').textContent = total;
   document.getElementById('st-avg').textContent = avg + '%';
@@ -1321,7 +1381,8 @@ function buildStats() {
     if (!byName[name]) byName[name] = { correo: r.correo || '', modulos: {} };
     // Normalizar moduloId
     const raw = (r.moduloId || r.modulo || '').toLowerCase();
-    let mid = raw.includes('1') || raw.includes('dias') ? 'dia1'
+    let mid = (raw === 'ret' || raw.includes('reten')) ? 'ret'
+             : raw.includes('1') || raw.includes('dias') ? 'dia1'
              : raw.includes('3') ? 'dia3'
              : raw.includes('cert') ? 'cert' : null;
     if (!mid) mid = raw;
@@ -1336,6 +1397,7 @@ function buildStats() {
     const d1 = mods['dia1'] !== undefined ? pillPct(mods['dia1']) : '<span style="color:#A0A0A0">—</span>';
     const d3 = mods['dia3'] !== undefined ? pillPct(mods['dia3']) : '<span style="color:#A0A0A0">—</span>';
     const ce = mods['cert'] !== undefined ? pillPct(mods['cert']) : '<span style="color:#A0A0A0">—</span>';
+    const re = mods['ret'] !== undefined ? pillPct(mods['ret']) : '<span style="color:#A0A0A0">—</span>';
     const allDone = mods['dia1'] >= 85 && mods['dia3'] >= 85 && mods['cert'] >= 85;
     const someApproved = mods['dia1'] >= 85 || mods['dia3'] >= 85 || mods['cert'] >= 85;
     const status = allDone
@@ -1345,24 +1407,25 @@ function buildStats() {
     const unlockBtns = `
       <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
         <button onclick="desbloquearModulo('${name}','dia3')" style="font-size:11px;padding:3px 8px;border:1px solid #D4D4D4;border-radius:4px;cursor:pointer;background:#fff;" title="Dar acceso al Quiz Día 3">🔓 D3</button>
+        <button onclick="desbloquearModulo('${name}','ret')" style="font-size:11px;padding:3px 8px;border:1px solid #D4D4D4;border-radius:4px;cursor:pointer;background:#fff;" title="Dar acceso a la Certificación de Retención">🔓 Ret</button>
         <button onclick="desbloquearModulo('${name}','cert')" style="font-size:11px;padding:3px 8px;border:1px solid #D4D4D4;border-radius:4px;cursor:pointer;background:#fff;" title="Dar acceso a la Certificación">🔓 Cert</button>
       </div>`;
     return `<tr>
       <td><strong>${name}</strong><br><span style="color:#A0A0A0;font-size:11px;">${info.correo}</span>${unlockBtns}</td>
-      <td>${d1}</td><td>${d3}</td><td>${ce}</td><td>${status}</td>
+      <td>${d1}</td><td>${d3}</td><td>${ce}</td><td>${re}</td><td>${status}</td>
     </tr>`;
   }).join('');
 }
 
 function desbloquearModulo(nombre, moduloId) {
-  const labels = { dia3: 'Quiz Día 3', cert: 'Certificación SAC' };
+  const labels = { dia3: 'Quiz Día 3', cert: 'Certificación SAC', ret: 'Certificación Retención' };
   if (!confirm('¿Desbloquear ' + (labels[moduloId]||moduloId) + ' para ' + nombre + '?\n\nEsto guardará un pase de acceso en su navegador la próxima vez que entre con ese nombre.')) return;
   // Guardar el pase como un resultado manual en la Sheet
   const payload = {
     nombre: nombre,
-    moduloId: moduloId === 'cert' ? 'dia3' : 'dia1', // desbloquear el módulo anterior
-    modulo: moduloId === 'cert' ? 'Quiz Día 3' : 'Quiz Día 1-2',
-    score: 1, total: 1, pct: 85,
+    moduloId: moduloId === 'ret' ? 'cert' : moduloId === 'cert' ? 'dia3' : 'dia1', // desbloquear el módulo anterior
+    modulo: moduloId === 'ret' ? 'Certificación SAC' : moduloId === 'cert' ? 'Quiz Día 3' : 'Quiz Día 1-2',
+    score: 1, total: 1, pct: 85, estado: 'Desbloqueo manual',
     tiempo: '0m 0s',
     tiempoSeg: 0,
     desbloqueoManual: true,
@@ -1519,8 +1582,15 @@ function saveQuestions() {
     }
     savedCount++;
   });
+  // Guardar en la Google Sheet para que TODOS los analistas vean el cambio
+  fetch(SHEETS_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'saveQuestions', clave: window._clave || '', modulo: currentQEditor, preguntas: pregs })
+  }).catch(() => {});
+  try { localStorage.setItem('preguntas_respaldo_' + currentQEditor, JSON.stringify(pregs)); } catch(e) {}
   const msg = document.getElementById('save-msg');
-  msg.textContent = '✅ ' + savedCount + ' preguntas guardadas correctamente.';
+  msg.textContent = '✅ ' + savedCount + ' preguntas enviadas a la Sheet. Los analistas verán el cambio al volver a abrir el portal.';
   msg.style.display = 'block';
   setTimeout(() => msg.style.display = 'none', 3000);
 }
