@@ -22,9 +22,9 @@
   <div class="welcome-wrap">
     <p class="welcome-tag">Quiz · Día 3</p>
     <h1 class="welcome-title">Flujo Operativo SAC</h1>
-    <p class="welcome-desc">5 preguntas sobre Selene, tickets, escalamientos, retención y PQR. Casos operativos reales — evalúan criterio y toma de decisiones, no memorización.</p>
+    <p class="welcome-desc">8 preguntas sobre suspensión temporal, facturación, estados del servicio, prorrateo, traslados y cambio de titular. Casos operativos reales — evalúan criterio y toma de decisiones, no memorización.</p>
     <div class="info-chips">
-      <div class="chip"><div class="chip-label">Preguntas</div><div class="chip-value">5</div></div>
+      <div class="chip"><div class="chip-label">Preguntas</div><div class="chip-value">8</div></div>
       <div class="chip"><div class="chip-label">Dificultad</div><div class="chip-value">Alta</div></div>
       <div class="chip"><div class="chip-label">Umbral</div><div class="chip-value">Sin mínimo</div></div>
       <div class="chip"><div class="chip-label">Tiempo</div><div class="chip-value">Sin límite</div></div>
@@ -46,7 +46,7 @@
 <div id="screen-quiz" class="screen">
   <div class="quiz-wrap">
     <div class="progress-header">
-      <span class="progress-text" id="prog-txt">Pregunta 1 de 5</span>
+      <span class="progress-text" id="prog-txt">Pregunta 1 de 8</span>
       <span class="progress-score" id="prog-score">✓ 0 correctas</span>
     </div>
     <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
@@ -116,66 +116,14 @@
 
 // ── PREGUNTAS DÍA 3 (5 casos operativos de alta dificultad) ────
 const PREGUNTAS_QUIZ3 = [
-  {
-    nivel: 'dificil',
-    texto: 'CASO\n\nMaría solicita suspender temporalmente su servicio durante 30 días porque estará fuera del país. Al revisar el servicio encuentras que:\n• La suscripción está ACTIVA.\n• Ya ha pagado varias facturas.\n• Utilizó una suspensión temporal por 60 días hace 4 meses.\n• Desea que la suspensión empiece hoy mismo.\n\n¿Cuál es la acción correcta?',
-    opciones: [
-      'Crear la suspensión por 30 días porque cumple el tiempo mínimo y la cuenta está activa',
-      'Informar que la solicitud no procede porque ya utilizó este beneficio durante el año actual',
-      'Escalar a Back Office para la aprobación',
-      'Crear la suspensión y aclarar que iniciará en la próxima fecha de corte',
-    ],
-    correcta: 1,
-    explicacion: 'Aunque la cuenta cumple las demás condiciones (servicio activo y facturable), la solicitud no procede porque la suspensión temporal es un beneficio que solo puede utilizarse UNA VEZ por año. Adicionalmente, la suspensión siempre inicia en la próxima fecha de corte, no en la fecha de solicitud. Al haber usado una suspensión previamente en el mismo año, no es posible generar una nueva.',
-  },
-  {
-    nivel: 'dificil',
-    texto: 'CASO\n\nRicardo Vargas escribe por WhatsApp. Dice que compró el apartamento 804 hace dos meses y el servicio de Somos sigue activo a nombre del anterior propietario, Felipe Torres. Ricardo quiere que quede a su nombre pero Felipe ya no vive allí y no tiene contacto con él.\n\n¿Cuál es la respuesta correcta del analista?',
-    opciones: [
-      'Actualizar el nombre directamente en Artemis con los datos de Ricardo ya que hay un cambio de propiedad',
-      'Cancelar el servicio de Felipe Torres e iniciar una nueva instalación a nombre de Ricardo',
-      'Intentar contactar a Felipe Torres con los datos registrados en el sistema para solicitar su autorización del cambio de titular — sin esa autorización el trámite no puede completarse',
-      'Pedirle a Ricardo que presente la escritura de compraventa como sustituto de la autorización del titular actual',
-    ],
-    correcta: 2,
-    explicacion: 'El cambio de titularidad requiere la participación y autorización del titular actual. El primer paso es intentar contactar a Felipe Torres con los datos que Somos tiene registrados. Sin esa autorización el proceso no puede completarse — ni con escrituras ni con ningún otro documento sustituto. No se modifica nada en Artemis hasta completar el proceso correctamente.',
-  },
-  {
-    nivel: 'dificil',
-    texto: 'Un cliente lleva 8 minutos insistiendo en que le devuelvan el dinero de los últimos 3 meses porque "el internet siempre falla". Al revisar en ISP/Grafana no hay ningún registro de falla en su nodo y el servicio ha tenido disponibilidad normal. El cliente dice que si no le devuelven el dinero va a poner una queja formal.\n\n¿Cuál es la secuencia correcta de acciones?',
-    opciones: [
-      'Ofrecerle un mes gratis como gesto de buena voluntad para que no ponga la queja',
-      'Transferirlo a Retención porque quiere cancelar el servicio',
-      'Validar con el cliente la falla específica, hacer diagnóstico técnico correcto, y si persiste la insatisfacción, orientarlo sobre el proceso de PQR explicando el tiempo de respuesta de 15 días hábiles',
-      'Informarle que los sistemas no registran ninguna falla y que la queja no procederá',
-    ],
-    correcta: 2,
-    explicacion: 'La acción correcta es primero validar y hacer un diagnóstico técnico real (quizás hay una falla intermitente no registrada). Si el cliente sigue insatisfecho, se le orienta sobre el proceso de PQR formal — que tiene 15 días hábiles de respuesta y genera un CUN. No se ofrece un mes gratis sin verificar, no se transfiere a Retención si el cliente no menciona querer cancelar, y nunca se invalida la percepción del cliente con datos del sistema sin antes investigar.',
-  },
-  {
-    nivel: 'dificil',
-    texto: 'CASO\n\nSon las 11:30 PM. Recibes 4 chats seguidos de clientes del mismo edificio en Laureles reportando que no tienen internet desde hace 2 horas. Al revisar en ISP/Grafana ves una afectación en el nodo de esa zona.\n\n¿Qué haces con cada uno de los 4 clientes?',
-    opciones: [
-      'Abrir una visita técnica para cada uno y asignarla al turno de la mañana',
-      'Decirles que el problema es interno de su apartamento y pedirles que reinicien el router',
-      'Comunicarles que hay una afectación identificada en su zona que ya está siendo atendida por el equipo técnico, sin dar tiempos de resolución, y NO abrir visita técnica para ninguno',
-      'Escalar cada caso individualmente al área técnica con un ticket diferente por cliente',
-    ],
-    correcta: 2,
-    explicacion: 'Cuando hay una falla masiva identificada en ISP/Grafana, el protocolo es: 1) Comunicar al cliente que hay una afectación en su zona siendo atendida. 2) NO dar tiempos de resolución que no se pueden garantizar. 3) NO abrir visitas técnicas individuales — eso satura la agenda y no resuelve el problema raíz. 4) Escalar al área técnica de forma consolidada, no caso por caso.',
-  },
-  {
-    nivel: 'dificil',
-    texto: 'CASO\n\nCamila López llama molesta. Dice: "Me cobraron $163.000 este mes y yo pago $75.000 del plan Essential. Eso está mal y quiero que me lo expliquen ahora." \n\nAl revisar en Artemis encuentras: plan Essential activo ($75.000), un TV Box adicional activado hace 18 días ($10.000/mes) y el ciclo de facturación es de 30 días.\n\n¿Cómo explicas el cobro?',
-    opciones: [
-      'Decirle que hay un error de facturación y escalar al área de Cobranzas para que lo corrijan',
-      'Explicarle que el cobro incluye: $75.000 del plan mensual + $10.000 del TV Box recurrente + el prorrateo de los 18 días del TV Box desde su activación ($6.000 aprox) = ~$91.000, no $163.000 — por lo que debe revisarse si hay otro cargo',
-      'Confirmarle que el cobro es correcto porque el TV Box tiene un costo de instalación adicional',
-      'Decirle que el sistema automáticamente cobró más por un ajuste de precios del plan Essential',
-    ],
-    correcta: 1,
-    explicacion: 'El análisis correcto: $75.000 plan + $10.000 TV Box recurrente + prorrateo de 18 días de TV Box ($10.000 ÷ 30 × 18 = $6.000) = ~$91.000. Si la factura dice $163.000, el cálculo no cuadra con los servicios activos — hay algo más que revisar antes de confirmar o negar el cobro. La respuesta B es la única que hace el análisis real en lugar de asumir que está bien o mal.',
-  },
+  {"nivel": "medio", "texto": "Un cliente solicita una suspensión temporal por 60 días. Al revisar el servicio observas que está en periodo de prueba y nunca ha realizado el pago de una factura. ¿Qué debes hacer?", "opciones": ["Informar que sí aplica la suspensión temporal porque la solicitud supera el mínimo de 30 días.", "Informar que sí aplica la suspensión temporal, pero solo desde la próxima fecha de corte.", "Informar que no aplica la suspensión temporal porque el servicio aún está en periodo de prueba y no es facturable.", "Informar que no aplica la suspensión temporal hasta que el cliente cumpla 60 días de servicio activo."], "correcta": 2, "explicacion": "La suspensión temporal solo aplica para servicios facturables. Si el cliente está en periodo de prueba y aún no ha pagado ninguna factura, no cumple la condición para solicitarla."},
+  {"nivel": "medio", "texto": "¿Cuál es la diferencia entre la facturación automática y la facturación manual en Somos?", "opciones": ["La facturación automática aplica para clientes B2B y la manual para clientes que pagan por PSE o tarjeta.", "La automática genera el link de pago por sistema y lo envía al cliente; la manual aplica para clientes especiales, como B2B VIP, a quienes Finanzas les genera la factura electrónica.", "Ambas generan el mismo link de pago; la diferencia es que una se envía por correo y la otra por WhatsApp.", "La automática aplica cuando el cliente está tokenizado y la manual cuando el cliente no tiene un método de pago registrado."], "correcta": 1, "explicacion": "La facturación automática la genera el sistema y envía el link de pago al cliente antes del vencimiento. La manual aplica para clientes especiales, como B2B VIP, donde Finanzas genera la factura electrónica y el proceso no depende del link automático."},
+  {"nivel": "medio", "texto": "¿Qué significa que un servicio esté en estado “Congelado” en Artemis?", "opciones": ["El cliente solicitó una pausa temporal del servicio, pero la reactivación solo puede hacerse después de validar un pago pendiente.", "El servicio está suspendido por falta de pago y se reactiva al validar el pago pendiente.", "El servicio está en proceso de traslado a otra dirección y queda sin navegación en la dirección actual.", "El cliente solicitó voluntariamente una suspensión temporal del servicio, con una fecha de reactivación definida."], "correcta": 3, "explicacion": "“Congelado” significa suspensión temporal voluntaria del servicio. Es diferente de “Suspendido”, que corresponde a corte por mora, y de “Retirado”, que corresponde a cancelación definitiva."},
+  {"nivel": "medio", "texto": "¿Cuál es la razón principal por la que puede aparecer un valor prorrateado al contratar un TV Box adicional?", "opciones": ["Porque el TV Box tiene un costo de instalación que se cobra una sola vez en la siguiente factura.", "Porque el sistema calcula un valor proporcional para alinear el nuevo TV Box con la fecha de corte que ya tiene el servicio.", "Porque el sistema crea una fecha de corte independiente para el TV Box y cobra solo los días usados hasta esa nueva fecha.", "Porque el sistema cobra el primer mes completo por adelantado y luego descuenta los días no usados en la siguiente factura."], "correcta": 1, "explicacion": "El prorrateo existe para unificar los valores en una sola fecha de corte sin modificarla: como el TV Box se activa en medio del ciclo, se cobra solo la parte proporcional de los días usados. No es un cobro duplicado ni un error."},
+  {"nivel": "medio", "texto": "Un cliente con plan Essential normalmente paga $75.000 al mes. Este mes recibió una factura por un valor superior al habitual. Al revisar, se identifica que activó un TV Box adicional durante el ciclo. ¿Cuál es la explicación más probable?", "opciones": ["El sistema aplicó un ajuste automático al plan Essential por cambio de ciclo de facturación.", "El cliente fue migrado automáticamente a un plan superior por haber agregado un servicio adicional.", "Se está cobrando el valor mensual del TV Box adicional más el valor proporcional de los días usados desde su activación hasta la fecha de corte.", "El sistema cobró el TV Box adicional desde el siguiente mes completo, sin aplicar ningún valor proporcional."], "correcta": 2, "explicacion": "Cuando el cliente activa un TV Box adicional en medio de su ciclo, la siguiente factura puede incluir el valor mensual del TV Box más el valor proporcional de los días usados hasta la fecha de corte. Por eso la factura es más alta de lo habitual, sin que sea un error."},
+  {"nivel": "dificil", "texto": "CASO: Laura solicita un traslado de servicio. Al validar, hay cobertura en la nueva dirección, pero la suscripción aparece en estado Suspendido por factura pendiente. ¿Qué debe hacer el analista?", "opciones": ["Informarle que se puede agendar el traslado, pero que debe realizar el pago antes de la visita técnica.", "Informarle que se puede crear la solicitud de traslado y que el pago pendiente se validará durante la programación.", "Informarle que el traslado puede quedar creado, pero no se ejecutará hasta que Back Office confirme el pago.", "Informarle que primero debe pagar la factura pendiente; cuando la suscripción esté Activa, se continúa con la programación del traslado."], "correcta": 3, "explicacion": "El traslado solo puede gestionarse si la suscripción está Activa. Si está Suspendida por deuda, primero se paga la factura pendiente y se espera a que el servicio quede activo; solo después se programa el traslado."},
+  {"nivel": "dificil", "texto": "CASO: María solicita suspender su servicio durante 30 días. Su suscripción está ACTIVA, ya pagó varias facturas y usó una suspensión temporal de 60 días en marzo de este año. Quiere que la nueva suspensión empiece hoy. ¿Cuál es la acción correcta?", "opciones": ["Crear la suspensión por 30 días porque cumple el tiempo mínimo y la cuenta está activa.", "Escalar a Back Office para que apruebe una segunda suspensión.", "Informar que la solicitud no procede porque ya usó la suspensión temporal este año.", "Crear la suspensión y aclararle que iniciará en la próxima fecha de corte, no hoy."], "correcta": 2, "explicacion": "La suspensión temporal solo puede usarse una vez por año, y María ya la usó en marzo, así que no procede. Aunque procediera, tampoco podría empezar hoy: la suspensión siempre inicia en la próxima fecha de corte."},
+  {"nivel": "dificil", "texto": "CASO: Ricardo compró el apartamento 804. El servicio aún aparece a nombre de Felipe Torres, quien ya no vive allí y no tiene contacto con Ricardo. ¿Qué debe hacer el analista?", "opciones": ["Intentar contactar a Felipe Torres con los datos registrados en Artemis: sin autorización del titular, el cambio no puede completarse.", "Cancelar el servicio de Felipe e iniciar una instalación nueva a nombre de Ricardo.", "Solicitar a Ricardo la escritura de compraventa como reemplazo de la autorización del titular.", "Actualizar directamente el nombre en Artemis con los datos de Ricardo por cambio de propiedad."], "correcta": 0, "explicacion": "El cambio de titularidad requiere autorización del titular actual. Si no se logra obtenerla, el trámite no puede completarse. La escritura de compraventa no reemplaza esa autorización."}
 ];
 
 // ── Instancia del motor ─────────────────────────────────────────
